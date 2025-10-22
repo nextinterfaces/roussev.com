@@ -1,6 +1,8 @@
-# Quick Start: roussev.com Setup
+# Quick Start: K3s on Hetzner with HTTPS
 
-## 🚀 Fast Track (5 minutes)
+Complete setup guide for deploying K3s on Hetzner Cloud with SSL certificates.
+
+## Fast Track (5 minutes)
 
 ### 1. Deploy Infrastructure
 ```bash
@@ -51,7 +53,7 @@ curl https://roussev.com/api
 # Should return: "Hello from K3s on Hetzner! This is a sample REST API."
 ```
 
-## 📋 Status Checks
+## Status Checks
 
 ```bash
 # Check everything
@@ -63,7 +65,7 @@ kubectl get ingress -n sample-app
 kubectl get pods -n cert-manager
 ```
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 ### Certificate stuck in "Pending"
 ```bash
@@ -83,6 +85,22 @@ SERVER_IP=$(cd terraform && terraform output -raw server_ip)
 curl -v https://roussev.com/api --resolve roussev.com:443:$SERVER_IP
 ```
 
-## 📚 Full Documentation
-See `SETUP_ROUSSEV_COM.md` for detailed instructions and troubleshooting.
+## Detailed Documentation
+
+For step-by-step instructions with troubleshooting:
+
+1. **DNS Configuration:** [docs/DNS_Setup.md](docs/DNS_Setup.md)
+   - Infrastructure deployment
+   - DNS setup (Hetzner DNS)
+   - DNS troubleshooting
+
+2. **SSL/TLS Setup:** [docs/TLS_setup.md](docs/TLS_setup.md)
+   - Application deployment
+   - cert-manager installation
+   - Let's Encrypt configuration
+   - Certificate troubleshooting
+
+### Utilities
+
+- **DNS Cache Issues:** Run `./scripts/clear-dns-cache.sh`
 

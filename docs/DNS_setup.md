@@ -45,11 +45,8 @@ If you already have domain configured in Hetzner DNS, simply update the A record
 Wait 2-5 minutes for the change to propagate, then verify:
 
 ```bash
-# Check from Google DNS
-dig @8.8.8.8 roussev.com A +short
-
-# Check from Cloudflare DNS
-dig @1.1.1.1 roussev.com A +short
+dig @8.8.8.8 roussev.com A +short # from Google DNS
+dig @1.1.1.1 roussev.com A +short # from Cloudflare DNS
 
 # Should return your K3s server IP
 ```

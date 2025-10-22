@@ -53,6 +53,10 @@ kubectl get pods -n cert-manager
 # Deploy application
 kubectl apply -f sample-service.yaml
 
+kubectl wait --namespace sample-app \
+  --for=condition=available deployment/sample-rest-service \
+  --timeout=300s
+  
 # Verify
 kubectl get pods -n sample-app
 kubectl get svc -n sample-app

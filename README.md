@@ -19,9 +19,8 @@ See [docs/QUICK_START.md](docs/QUICK_START.md)
 
 ## Detailed Docs
 
-See [docs/DNS_Setup.md](docs/DNS_Setup.md)
-See [docs/DEPLOY_services.md](docs/DEPLOY_services.md)
-See [docs/TLS_setup.md](docs/TLS_setup.md)
+- [docs/DNS_Setup.md](docs/DNS_Setup.md)
+- [docs/TLS_setup.md](docs/TLS_setup.md)
 
 ## Next Steps
 

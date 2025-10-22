@@ -1,9 +1,5 @@
 # Quick Start: K3s on Hetzner with HTTPS
 
-Complete setup guide for deploying a K3s cluster on Hetzner Cloud with SSL certificates.
-
-## Fast Track (5 Minutes)
-
 ### 1. Deploy Infrastructure
 ```bash
 cd terraform
@@ -15,7 +11,7 @@ echo "server IP: $SERVER_IP"
 ```
 
 This will:
-- Create a CPX11 server in Ashburn, VA (ash datacenter)
+- Create a CPX11 server in "ash" us-east
 - Install K3s with Nginx ingress controller
 - Configure firewall rules
 - Generate SSH keys
@@ -58,13 +54,11 @@ kubectl get ingress -n sample-app
 ### 5. Wait for Certificate
 ```bash
 kubectl get certificate -n sample-app -w
-# Wait for READY = True (typically 1-2 minutes)
 ```
 
 ### 6. Test Your Deployment
 ```bash
 curl https://roussev.com/api
-# Expected response: "Hello from K3s on Hetzner! This is a sample REST API."
 ```
 
 ## Status Checks
@@ -96,18 +90,10 @@ SERVER_IP=$(cd terraform && terraform output -raw server_ip)
 curl https://roussev.com/api --resolve roussev.com:443:$SERVER_IP
 ```
 
-## Detailed Documentation
-
-For step-by-step instructions with comprehensive troubleshooting:
+## Detailed Docs
 
 1. **DNS Configuration:** [DNS_setup.md](DNS_setup.md)
-   - DNS setup with Hetzner DNS
-   - DNS troubleshooting and verification
-
 2. **TLS Setup:** [TLS_setup.md](TLS_setup.md)
-   - cert-manager installation
-   - Let's Encrypt configuration
-   - Certificate troubleshooting
 
 ## Utilities
 

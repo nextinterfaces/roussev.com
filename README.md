@@ -23,7 +23,11 @@ See [docs/QUICK_START.md](docs/QUICK_START.md)
 
 See [docs/DNS_Setup.md](docs/DNS_Setup.md)
 
-### 3. Set Up TLS and Deploy Services
+### 3. Deploy Services
+
+See [docs/DEPLOY_services.md](docs/DEPLOY_services.md)
+
+### 4. Set Up TLS and Deploy Services
 
 See [docs/TLS_setup.md](docs/TLS_setup.md)
 

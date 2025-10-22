@@ -10,36 +10,7 @@ This guide explains how to configure HTTPS for your K3s services using cert-mana
 - DNS configured and pointing to your K3s server (see [DNS_setup.md](DNS_setup.md))
 - kubectl configured with your cluster's kubeconfig
 - Domain name (e.g., roussev.com)
-
----
-
-## Step 1: Deploy Sample Application
-
-First, deploy a sample application to test the SSL/TLS setup.
-
-```bash
-# Set kubeconfig
-export KUBECONFIG=./terraform/kubeconfig.yaml
-
-# Deploy the sample service
-cd k8s
-kubectl apply -f sample-service.yaml
-
-# Wait for deployment to be ready
-kubectl wait --namespace sample-app \
-  --for=condition=available deployment/sample-rest-service \
-  --timeout=300s
-
-# Verify deployment
-kubectl get pods -n sample-app
-```
-
-Expected output:
-```
-NAME                                   READY   STATUS    RESTARTS   AGE
-sample-rest-service-xxxxxxxxxx-xxxxx   1/1     Running   0          30s
-sample-rest-service-xxxxxxxxxx-xxxxx   1/1     Running   0          30s
-```
+- services are deployed (see [Deploy_services.md](DEPLOY_services.md))
 
 ---
 
@@ -76,7 +47,7 @@ Expected output: 3 pods in Running state
 
 ## Step 3: Configure Let's Encrypt Issuers
 
-Let's Encrypt provides free SSL certificates. We'll configure both staging (for testing) and production issuers.
+Let's Encrypt provides free SSL/TLS certificates. We'll configure both staging (for testing) and production issuers.
 
 ```bash
 # Apply the Let's Encrypt issuers
@@ -100,7 +71,7 @@ letsencrypt-staging   True    10s
 
 ## Step 4: Request SSL Certificate
 
-Certificates are automatically requested when you create an Ingress with the cert-manager annotation.
+Certificates are automatically requested when you create an Ingress resource with the cert-manager annotation.
 
 ### Check Certificate Status
 
@@ -108,7 +79,7 @@ Certificates are automatically requested when you create an Ingress with the cer
 # Watch certificate creation
 kubectl get certificate -n sample-app -w
 
-# Expected: READY = True (takes 1-2 minutes)
+# Expected: READY = True (typically takes 1-2 minutes)
 ```
 
 ### View Certificate Details
@@ -135,10 +106,10 @@ Status:
 Once the certificate is issued, test your endpoint:
 
 ```bash
-# Test HTTPS
+# Test HTTPS endpoint
 curl https://roussev.com/api
 
-# Expected: Hello from K3s on Hetzner! This is a sample REST API.
+# Expected response: Hello from K3s on Hetzner! This is a sample REST API.
 ```
 
 ### Verify SSL Certificate
@@ -172,17 +143,17 @@ kubectl logs -n cert-manager -l app=cert-manager -f
 
 ### Common Issues
 
-**1. DNS not propagated**
+**1. DNS Not Propagated**
 - Wait 5-10 minutes for DNS to propagate
 - See [DNS_setup.md](DNS_setup.md) for DNS troubleshooting
 
-**2. Port 80 blocked**
-- Let's Encrypt uses HTTP-01 challenge (requires port 80)
-- Check firewall: Port 80 should be open
+**2. Port 80 Blocked**
+- Let's Encrypt uses HTTP-01 challenge which requires port 80
+- Verify firewall: Port 80 must be open
 
-**3. Rate limit hit**
-- Let's Encrypt production: 5 certificates per domain per week
-- Use staging issuer for testing (see below)
+**3. Rate Limit Hit**
+- Let's Encrypt production has a limit of 5 certificates per domain per week
+- Use the staging issuer for testing (see below)
 
 ### Test Before DNS Propagates
 
@@ -190,11 +161,11 @@ See [DNS_setup.md](DNS_setup.md) for detailed instructions on testing before DNS
 
 ---
 
-## Using Staging for Testing
+## Using Staging Issuer for Testing
 
 To avoid hitting Let's Encrypt rate limits during testing:
 
-### Switch to Staging
+### Switch to Staging Issuer
 
 ```bash
 # Update ingress annotation
@@ -209,7 +180,7 @@ kubectl delete secret sample-rest-tls -n sample-app
 kubectl get certificate -n sample-app -w
 ```
 
-### Switch to Production
+### Switch to Production Issuer
 
 ```bash
 # Update ingress annotation
@@ -220,7 +191,7 @@ kubectl annotate ingress sample-rest-ingress -n sample-app \
 kubectl delete certificate sample-rest-tls -n sample-app
 kubectl delete secret sample-rest-tls -n sample-app
 
-# Wait for production certificate
+# Wait for production certificate to be issued
 kubectl get certificate -n sample-app -w
 ```
 
@@ -238,16 +209,6 @@ kubectl logs -n cert-manager -l app=cert-manager -f
 
 # Check certificate expiration
 kubectl get certificate -n sample-app -o wide
-```
-
-2. **Apply the ingress:**
-```bash
-kubectl apply -f my-app-ingress.yaml
-```
-
-3. **Wait for certificate:**
-```bash
-kubectl get certificate -n my-namespace -w
 ```
 
 ---
@@ -286,14 +247,14 @@ kubectl describe certificate sample-rest-tls -n sample-app
 
 ## Next Steps
 
-Once SSL is working:
+Once SSL/TLS is working:
 
-1. **Deploy your actual application** (replace sample service)
-2. **Add more services/paths** (see "Adding SSL to Additional Services" above)
-3. **Set up monitoring** (Prometheus/Grafana)
-4. **Configure backups**
-5. **Add CI/CD pipeline**
-6. **Create staging environment**
+1. **Deploy your actual application** (replace the sample service)
+2. **Add SSL/TLS to additional services** using the same Ingress pattern
+3. **Set up monitoring** with Prometheus/Grafana
+4. **Configure backups** for your cluster
+5. **Add a CI/CD pipeline** for automated deployments
+6. **Create a staging environment** for testing
 
 ---
 
@@ -301,19 +262,9 @@ Once SSL is working:
 
 | Component              | Description                                | Status |
 |------------------------|--------------------------------------------|--------|
-| Sample Application     | Test REST service                          | ✅ |
-| cert-manager           | Manages certificate lifecycle              | ✅ |
-| letsencrypt-prod       | Production ACME issuer (HTTP-01 challenge) | ✅ |
-| letsencrypt-staging    | Staging ACME issuer (for testing)          | ✅ |
-| sample-rest-tls        | TLS certificate secret                     | ✅ |
-| Auto-renewal           | Renews 30 days before expiration           | ✅ |
-
----
-
-## Reference
-
-- **cert-manager Documentation:** https://cert-manager.io/docs/
-- **Let's Encrypt:** https://letsencrypt.org/
-- **Rate Limits:** https://letsencrypt.org/docs/rate-limits/
-- **DNS Setup Guide:** [DNS_setup.md](DNS_setup.md)
-- **Quick Start Guide:** [QUICK_START.md](QUICK_START.md)
+| Sample Application     | Test REST service                          | ✅     |
+| cert-manager           | Manages certificate lifecycle              | ✅     |
+| letsencrypt-prod       | Production ACME issuer (HTTP-01 challenge) | ✅     |
+| letsencrypt-staging    | Staging ACME issuer (for testing)          | ✅     |
+| sample-rest-tls        | TLS certificate secret                     | ✅     |
+| Auto-renewal           | Renews 30 days before expiration           | ✅     |

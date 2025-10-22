@@ -30,7 +30,7 @@ dig @8.8.8.8 roussev.com A +short
 # Should return your server IP
 ```
 
-### 4. Deploy Application & SSL
+### 4. Setup TLS
 ```bash
 export KUBECONFIG=./terraform/kubeconfig.yaml
 
@@ -42,6 +42,14 @@ kubectl wait --namespace cert-manager --for=condition=ready pod --selector=app.k
 cd ../k8s
 kubectl apply -f letsencrypt-issuer.yaml
 
+# Verify
+kubectl get clusterissuer
+kubectl get certificate -n sample-app -w
+kubectl get pods -n cert-manager
+```
+
+### 5. Deploy Apps
+```bash
 # Deploy application
 kubectl apply -f sample-service.yaml
 
@@ -51,26 +59,9 @@ kubectl get svc -n sample-app
 kubectl get ingress -n sample-app
 ```
 
-### 5. Wait for Certificate
-```bash
-kubectl get certificate -n sample-app -w
-```
-
 ### 6. Test Your Deployment
 ```bash
 curl https://roussev.com/api
-```
-
-## Status Checks
-
-```bash
-# Check everything
-kubectl get pods -n sample-app
-kubectl get certificate -n sample-app
-kubectl get ingress -n sample-app
-
-# Check cert-manager
-kubectl get pods -n cert-manager
 ```
 
 ## Troubleshooting

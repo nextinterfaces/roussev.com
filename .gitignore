@@ -1,17 +1,17 @@
 # Terraform
-terraform/.terraform/
-terraform/.terraform.lock.hcl
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
-terraform/*.tfvars
-terraform/.terraform.tfstate.lock.info
+infra/terraform/.terraform/
+infra/terraform/.terraform.lock.hcl
+infra/terraform/terraform.tfstate
+infra/terraform/terraform.tfstate.backup
+infra/terraform/*.tfvars
+infra/terraform/.terraform.tfstate.lock.info
 
 # SSH Keys
-terraform/ssh_key.pem
-terraform/ssh_key.pem.pub
+infra/terraform/ssh_key.pem
+infra/terraform/ssh_key.pem.pub
 
 # Kubeconfig
-terraform/kubeconfig.yaml
+infra/terraform/kubeconfig.yaml
 
 # OS
 .DS_Store

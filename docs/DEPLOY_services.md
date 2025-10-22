@@ -1,7 +1,6 @@
-# Deploy k8s services
+# Deploy Kubernetes Services
 
-This guide explains how to deploy
-
+This guide explains how to deploy services to K3s cluster.
 
 ## Deploy Sample Application
 
@@ -24,11 +23,8 @@ kubectl wait --namespace sample-app \
 kubectl get pods -n sample-app
 ```
 
-Expected output:
-```
-NAME                                   READY   STATUS    RESTARTS   AGE
-sample-rest-service-xxxxxxxxxx-xxxxx   1/1     Running   0          30s
-sample-rest-service-xxxxxxxxxx-xxxxx   1/1     Running   0          30s
-```
+or use `cd k8s && ./deploy.sh`
+
+## Next Steps
 
 **Continue to:** [TLS_setup.md](TLS_setup.md) 

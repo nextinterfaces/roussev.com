@@ -1,8 +1,4 @@
-# DNS Setup for roussev.com with Hetzner DNS
-
-This guide explains how to configure DNS for `roussev.com` to point to your K3s cluster on Hetzner Cloud.
-
----
+# DNS Setup with Hetzner DNS
 
 ## Prerequisites
 
@@ -13,9 +9,9 @@ This guide explains how to configure DNS for `roussev.com` to point to your K3s 
 
 ---
 
-## Step 1: Get Your Server IP
+## Step 1: Get Server IP
 
-After deploying infrastructure with Terraform, retrieve your server IP:
+After deploying infrastructure with Terraform, retrieve server IP:
 
 ```bash
 terraform output server_ip
@@ -29,13 +25,13 @@ terraform output server_ip
 
 ### Option A: Update Existing DNS Record
 
-If you already have your domain configured in Hetzner DNS, simply update the A record:
+If you already have domain configured in Hetzner DNS, simply update the A record:
 
 #### Steps
 
 1. Go to **Hetzner DNS Console**: https://dns.hetzner.com/
-2. Log in with your Hetzner account
-3. Click on your DNS zone (e.g., `roussev.com`)
+2. Log in with Hetzner account
+3. Click on DNS zone (e.g., `roussev.com`)
 4. Find the A record for `@` or your root domain
 5. Edit the record:
    - **Name:** `@` (or leave blank for root domain)

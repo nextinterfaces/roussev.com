@@ -11,7 +11,7 @@ export TF_VAR_hcloud_token="your-hetzner-api-token-here"
 terraform init
 terraform apply
 SERVER_IP=$(terraform output -raw server_ip)
-echo "Your server IP: $SERVER_IP"
+echo "server IP: $SERVER_IP"
 ```
 
 This will:

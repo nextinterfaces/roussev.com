@@ -56,7 +56,7 @@ hcloud_token = "your-hetzner-api-token-here"
 cd terraform
 terraform init
 terraform plan
-terraform apply
+terraform apply -auto-approve
 ```
 
 This will:
@@ -75,6 +75,12 @@ export KUBECONFIG=$(pwd)/kubeconfig.yaml
 kubectl get nodes
 kubectl get pods -A
 ```
+
+### 4. Setup DNS
+
+See `docs/Hetzner_DNS_Setup.md` for detailed instructions.
+
+Find the server IP and add it to Hetzner DNS
 
 ### 4. Deploy Sample Service
 
@@ -133,8 +139,9 @@ You'll need to configure your domain to point to the server:
 
 4. Test connectivity before applying certificates:
    ```bash
-   # Test with explicit IP resolution (replace with your actual IP)
-   curl -v https://roussev.com/api --resolve roussev.com:443:37.27.200.27
+   cd terraform
+   SERVER_IP=$(terraform output -raw server_ip)
+   curl -v https://roussev.com/api --resolve roussev.com:443:$SERVER_IP
    ```
 
 ## Customization

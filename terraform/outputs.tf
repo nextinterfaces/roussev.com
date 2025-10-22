@@ -18,13 +18,28 @@ output "kubeconfig_path" {
   value       = "${path.module}/kubeconfig.yaml"
 }
 
-output "sslip_domain" {
-  description = "sslip.io domain for accessing services"
-  value       = "${hcloud_server.k3s.ipv4_address}.sslip.io"
+output "domain" {
+  description = "Domain for accessing services"
+  value       = "roussev.com"
 }
 
 output "sample_service_url" {
   description = "URL to access the sample REST service"
-  value       = "http://${hcloud_server.k3s.ipv4_address}.sslip.io/api"
+  value       = "https://roussev.com/api"
+}
+
+output "dns_instructions" {
+  description = "DNS configuration instructions"
+  value       = <<-EOT
+    Configure your DNS with the following A record:
+
+    Domain: roussev.com
+    Type: A
+    Value: ${hcloud_server.k3s.ipv4_address}
+    TTL: 300 (or Auto)
+
+    Verify DNS propagation:
+    dig @8.8.8.8 roussev.com A
+  EOT
 }
 

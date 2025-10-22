@@ -9,7 +9,7 @@ This guide explains how to configure HTTPS for your K3s services using **cert-ma
 - K3s cluster running on Hetzner Cloud
 - DNS configured and pointing to your K3s server (see [DNS_Setup.md](DNS_Setup.md))
 - kubectl configured with kubeconfig
-- Domain name (e.g., roussev.com)
+- roussev.com Domain name
 
 ---
 

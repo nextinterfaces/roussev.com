@@ -13,21 +13,7 @@ This guide explains how to configure DNS for `roussev.com` to point to your K3s 
 
 ---
 
-## Step 1: Deploy Infrastructure
-
-First, deploy your K3s cluster on Hetzner Cloud using Terraform.
-
 ```bash
-# Navigate to terraform directory
-cd terraform
-
-# Initialize Terraform
-terraform init
-
-# Deploy infrastructure
-terraform apply
-
-# Get your server IP (save this for DNS configuration)
 terraform output server_ip
 ```
 
@@ -37,7 +23,7 @@ terraform output server_ip
 
 ## Step 2: Configure DNS
 
-### Option 1: Update Existing DNS Record (Quick)
+### Update Existing DNS Record
 
 If you already have roussev.com configured in Hetzner DNS, simply update the A record:
 
@@ -70,7 +56,7 @@ dig @1.1.1.1 roussev.com A +short
 
 ---
 
-### Option 2: Create New DNS Zone (First Time Setup)
+### Create New DNS Zone (First Time Setup)
 
 If you're setting up Hetzner DNS for the first time:
 
@@ -96,8 +82,6 @@ If you're setting up Hetzner DNS for the first time:
    Name Server 3: hydrogen.ns.hetzner.com
    ```
 4. Save changes
-
-⏱ **Propagation Time:** Name server changes take 1–24 hours to propagate globally.
 
 #### Step 3: Add DNS Records in Hetzner
 

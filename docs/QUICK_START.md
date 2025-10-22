@@ -7,11 +7,20 @@ Complete setup guide for deploying K3s on Hetzner Cloud with SSL certificates.
 ### 1. Deploy Infrastructure
 ```bash
 cd terraform
+export TF_VAR_hcloud_token="your-hetzner-api-token-here"
+terraform init
 terraform apply
 SERVER_IP=$(terraform output -raw server_ip)
 echo "Your server IP: $SERVER_IP"
 ```
 
+This will:
+- Create a CPX11 server in Ashburn, VA (ash)
+- Install K3s with nginx ingress controller
+- Configure firewall rules
+- Generate SSH keys
+- Download kubeconfig
+- 
 ### 2. Configure DNS
 Add this A record to your DNS provider:
 - **Domain:** `roussev.com`

@@ -1,0 +1,33 @@
+#cloud-config
+package_update: true
+package_upgrade: true
+
+packages:
+  - curl
+  - wget
+  - git
+
+runcmd:
+  # Install K3s with Traefik disabled (we'll use nginx-ingress)
+  - curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION="${k3s_version}" sh -s - --disable traefik
+  
+  # Wait for K3s to be ready
+  - until kubectl get nodes; do sleep 5; done
+  
+  # Set proper permissions for kubeconfig
+  - chmod 644 /etc/rancher/k3s/k3s.yaml
+  
+  # Install nginx ingress controller
+  - kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.9.5/deploy/static/provider/cloud/deploy.yaml
+  
+  # Wait for nginx ingress to be ready
+  - sleep 30
+  - kubectl wait --namespace ingress-nginx --for=condition=ready pod --selector=app.kubernetes.io/component=controller --timeout=300s
+
+write_files:
+  - path: /root/k3s-ready.txt
+    content: |
+      K3s installation completed successfully!
+    owner: root:root
+    permissions: '0644'
+

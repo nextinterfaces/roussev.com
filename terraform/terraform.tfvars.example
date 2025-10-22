@@ -1,0 +1,12 @@
+# Copy this file to terraform.tfvars and fill in your values
+
+# Required: Your Hetzner Cloud API Token
+# Get it from: https://console.hetzner.cloud/ -> Security -> API Tokens
+hcloud_token = "your-hetzner-api-token-here"
+
+# Optional: Customize these values
+# server_name = "k3s-server"
+# server_type = "cpx11"  # cpx11, cpx21, cpx31, cpx41, cpx51 (or cax11, cax21, etc for ARM)
+# location = "ash"       # ash (Ashburn, VA), fsn1 (Falkenstein), nbg1 (Nuremberg), hel1 (Helsinki)
+# ssh_key_name = "k3s-key"
+

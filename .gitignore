@@ -1,0 +1,33 @@
+# Terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/*.tfvars
+terraform/.terraform.tfstate.lock.info
+
+# SSH Keys
+terraform/ssh_key.pem
+terraform/ssh_key.pem.pub
+
+# Kubeconfig
+terraform/kubeconfig.yaml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+K3S_TLS_setup.md
+commands.txt
+steps.mmd
+Hetzner_DNS_Setup.md
+setup.sh
+
+

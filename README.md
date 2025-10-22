@@ -23,18 +23,11 @@ See `docs/QUICK_START.md`
 
 ### 2. Setup DNS
 
-See `docs/DNS_Setup.md`
+See `docs/DNS_setup.md`
 
-### 3. Setup TLS
+### 3. Setup TLS and Deploy services
 
 See `docs/TLS_setup.md`
-
-### 3. Deploy Services
-
-```bash
-cd ../k8s
-./deploy.sh
-```
 
 ### Other Next Steps
 

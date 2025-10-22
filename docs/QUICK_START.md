@@ -30,7 +30,7 @@ Add this A record to your DNS provider:
 
 ### 3. Verify DNS
 ```bash
-dig @8.8.8.8 roussev.com A
+dig @8.8.8.8 roussev.com A +short
 # Should return your server IP
 ```
 
@@ -48,6 +48,11 @@ kubectl apply -f letsencrypt-issuer.yaml
 
 # Deploy application
 kubectl apply -f sample-service.yaml
+
+# Verify
+kubectl get pods -n sample-app
+kubectl get svc -n sample-app
+kubectl get ingress -n sample-app
 ```
 
 ### 5. Wait for Certificate
@@ -83,28 +88,23 @@ kubectl logs -n cert-manager -l app=cert-manager
 ```
 
 ### DNS not resolving
-Wait 5-10 minutes for DNS propagation, then:
-```bash
-dig @8.8.8.8 roussev.com A
-```
+Wait 5-10 minutes for DNS propagation. See [DNS_setup.md](DNS_setup.md) for detailed troubleshooting.
 
 ### Test before DNS propagates
 ```bash
 SERVER_IP=$(cd terraform && terraform output -raw server_ip)
-curl -v https://roussev.com/api --resolve roussev.com:443:$SERVER_IP
+curl https://roussev.com/api --resolve roussev.com:443:$SERVER_IP
 ```
 
 ## Detailed Documentation
 
 For step-by-step instructions with troubleshooting:
 
-1. **DNS Configuration:** [docs/DNS_Setup.md](docs/DNS_Setup.md)
-   - Infrastructure deployment
+1. **DNS Configuration:** [DNS_setup.md](DNS_setup.md)
    - DNS setup (Hetzner DNS)
    - DNS troubleshooting
 
-2. **SSL/TLS Setup:** [docs/TLS_setup.md](docs/TLS_setup.md)
-   - Application deployment
+2. **TLS Setup:** [TLS_setup.md](TLS_setup.md)
    - cert-manager installation
    - Let's Encrypt configuration
    - Certificate troubleshooting

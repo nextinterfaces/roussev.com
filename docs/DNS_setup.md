@@ -160,19 +160,24 @@ ipconfig /flushdns
 
 ### Test Before DNS Fully Propagates
 
-You can test your service before DNS propagates using the `--resolve` flag:
+You can test your service before DNS propagates:
 
 ```bash
-curl https://roussev.com/api --resolve roussev.com:443:<your-k3s-ip>
-```
+# Get server IP
+SERVER_IP=$(cd terraform && terraform output -raw server_ip)
 
----
+# Test with explicit IP resolution
+curl https://roussev.com/api --resolve roussev.com:443:$SERVER_IP
+
+# Or test with IP and Host header (for HTTP testing)
+curl http://$SERVER_IP/api -H "Host: roussev.com"
+```
 
 ---
 
 ## Step 3: Next Steps
 
-After DNS is configured, proceed to SSL/TLS setup:
+After DNS is configured, proceed to TLS setup:
 
 **Continue to:** [TLS_setup.md](TLS_setup.md) for SSL certificate configuration
 
@@ -183,5 +188,5 @@ After DNS is configured, proceed to SSL/TLS setup:
 - **Hetzner DNS Console:** https://dns.hetzner.com/
 - **DNS Checker:** https://dnschecker.org/
 - **Hetzner DNS Documentation:** https://docs.hetzner.com/dns-console/
-- **Quick Start Guide:** [../QUICK_START.md](../QUICK_START.md)
+- **Quick Start Guide:** [QUICK_START.md](QUICK_START.md)
 

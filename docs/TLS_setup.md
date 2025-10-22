@@ -7,7 +7,7 @@ This guide explains how to configure HTTPS for your K3s services using **cert-ma
 ## Prerequisites
 
 - K3s cluster running on Hetzner Cloud
-- DNS configured and pointing to your K3s server (see [DNS_Setup.md](DNS_Setup.md))
+- DNS configured and pointing to your K3s server (see [DNS_setup.md](DNS_setup.md))
 - kubectl configured with kubeconfig
 - roussev.com Domain name
 
@@ -174,7 +174,7 @@ kubectl logs -n cert-manager -l app=cert-manager -f
 
 **1. DNS not propagated**
 - Wait 5-10 minutes for DNS to propagate
-- Verify: `dig @8.8.8.8 roussev.com A +short`
+- See [DNS_setup.md](DNS_setup.md) for DNS troubleshooting
 
 **2. Port 80 blocked**
 - Let's Encrypt uses HTTP-01 challenge (requires port 80)
@@ -186,16 +186,7 @@ kubectl logs -n cert-manager -l app=cert-manager -f
 
 ### Test Before DNS Propagates
 
-```bash
-# Get server IP
-SERVER_IP=$(cd terraform && terraform output -raw server_ip)
-
-# Test with explicit IP resolution
-curl https://roussev.com/api --resolve roussev.com:443:$SERVER_IP
-
-# Or test with IP and Host header
-curl -k https://$SERVER_IP/api -H "Host: roussev.com"
-```
+See [DNS_setup.md](DNS_setup.md) for detailed instructions on testing before DNS propagates.
 
 ---
 
@@ -249,41 +240,6 @@ kubectl logs -n cert-manager -l app=cert-manager -f
 kubectl get certificate -n sample-app -o wide
 ```
 
----
-
-## Adding SSL to Additional Services
-
-To add SSL to other services:
-
-1. **Create an Ingress with cert-manager annotation:**
-
-```yaml
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: my-app-ingress
-  namespace: my-namespace
-  annotations:
-    cert-manager.io/cluster-issuer: "letsencrypt-prod"
-spec:
-  ingressClassName: nginx
-  tls:
-  - hosts:
-    - roussev.com
-    secretName: my-app-tls
-  rules:
-  - host: roussev.com
-    http:
-      paths:
-      - path: /my-app
-        pathType: Prefix
-        backend:
-          service:
-            name: my-app-service
-            port:
-              number: 80
-```
-
 2. **Apply the ingress:**
 ```bash
 kubectl apply -f my-app-ingress.yaml
@@ -322,11 +278,6 @@ kubectl logs -n sample-app -l app=sample-rest-service -f
 ```bash
 # Check certificate details
 kubectl describe certificate sample-rest-tls -n sample-app
-
-# Check certificate expiration date
-echo | openssl s_client -servername roussev.com \
-  -connect roussev.com:443 2>/dev/null | \
-  openssl x509 -noout -dates
 ```
 
 **Note:** cert-manager automatically renews certificates 30 days before expiration.
@@ -364,5 +315,5 @@ Once SSL is working:
 - **cert-manager Documentation:** https://cert-manager.io/docs/
 - **Let's Encrypt:** https://letsencrypt.org/
 - **Rate Limits:** https://letsencrypt.org/docs/rate-limits/
-- **DNS Setup Guide:** [DNS_Setup.md](DNS_Setup.md)
-- **Quick Start Guide:** [../QUICK_START.md](../QUICK_START.md)
+- **DNS Setup Guide:** [DNS_setup.md](DNS_setup.md)
+- **Quick Start Guide:** [QUICK_START.md](QUICK_START.md)

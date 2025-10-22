@@ -1,6 +1,6 @@
 # TLS/SSL Setup with cert-manager and Let's Encrypt
 
-This guide explains how to configure HTTPS for your K3s services using **cert-manager** and **Let's Encrypt**.
+This guide explains how to configure HTTPS for your K3s services using cert-manager and Let's Encrypt.
 
 ---
 
@@ -8,14 +8,14 @@ This guide explains how to configure HTTPS for your K3s services using **cert-ma
 
 - K3s cluster running on Hetzner Cloud
 - DNS configured and pointing to your K3s server (see [DNS_setup.md](DNS_setup.md))
-- kubectl configured with kubeconfig
-- roussev.com Domain name
+- kubectl configured with your cluster's kubeconfig
+- Domain name (e.g., roussev.com)
 
 ---
 
 ## Step 1: Deploy Sample Application
 
-First, deploy a sample application to test the SSL setup.
+First, deploy a sample application to test the SSL/TLS setup.
 
 ```bash
 # Set kubeconfig
@@ -45,7 +45,7 @@ sample-rest-service-xxxxxxxxxx-xxxxx   1/1     Running   0          30s
 
 ## Step 2: Install cert-manager
 
-cert-manager automates the management and issuance of TLS certificates.
+cert-manager automates the management and issuance of TLS certificates from various sources.
 
 ```bash
 export KUBECONFIG=./terraform/kubeconfig.yaml
@@ -65,12 +65,12 @@ kubectl wait --namespace cert-manager \
 ```bash
 # Check cert-manager pods
 kubectl get pods -n cert-manager
-
-# Expected output: 3 pods running
-# cert-manager-*
-# cert-manager-cainjector-*
-# cert-manager-webhook-*
 ```
+
+Expected output: 3 pods in Running state
+- cert-manager-*
+- cert-manager-cainjector-*
+- cert-manager-webhook-*
 
 ---
 

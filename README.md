@@ -1,35 +1,33 @@
-# roussev.com website
+# roussev.com Website
 
 ## Features
 
 - **K3s Kubernetes** cluster on Hetzner Cloud
-- **Location**: Ashburn, VA, USA (ash) us-east
-- **Server Type**: CPX11
-- **Nginx Ingress Controller** 
+- **Nginx Ingress Controller** for routing
 - **Sample REST Service** exposed publicly with HTTPS
-- **Terraform setup** infrastructure as code
+- **Terraform** for infrastructure as code
 - **Let's Encrypt SSL** certificates with cert-manager
 
 ## Prerequisites
 
 1. **Hetzner Cloud Account**
-2. **Hetzner API Token**: Hetzner Cloud Console > Security > API Tokens
+2. **Hetzner API Token**: Available in Hetzner Cloud Console > Security > API Tokens
 
 ## Quick Start
 
 ### 1. Deploy Infrastructure
 
-See `docs/QUICK_START.md`
+See [docs/QUICK_START.md](docs/QUICK_START.md)
 
-### 2. Setup DNS
+### 2. Set Up DNS
 
-See `docs/DNS_setup.md`
+See [docs/DNS_Setup.md](docs/DNS_Setup.md)
 
-### 3. Setup TLS and Deploy services
+### 3. Set Up TLS and Deploy Services
 
-See `docs/TLS_setup.md`
+See [docs/TLS_setup.md](docs/TLS_setup.md)
 
-### Other Next Steps
+## Next Steps
 
 - Deploy a real application
 - Set up monitoring with Prometheus/Grafana
@@ -41,11 +39,3 @@ See `docs/TLS_setup.md`
 ## License
 
 MIT
-
-## Support
-
-For issues with:
-- **Hetzner Cloud**: https://docs.hetzner.com/cloud/
-- **K3s**: https://docs.k3s.io/
-- **Nginx Ingress**: https://kubernetes.github.io/ingress-nginx/
-

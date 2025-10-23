@@ -19,7 +19,7 @@ This guide explains how to configure HTTPS for your K3s services using cert-mana
 cert-manager automates the management and issuance of TLS certificates from various sources.
 
 ```bash
-export KUBECONFIG=./terraform/kubeconfig.yaml
+export KUBECONFIG=./infra/terraform/kubeconfig.yaml
 
 # Install cert-manager
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.yaml

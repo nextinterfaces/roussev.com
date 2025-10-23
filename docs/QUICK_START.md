@@ -32,7 +32,7 @@ dig @8.8.8.8 roussev.com A +short
 
 ### 4. Setup TLS
 ```bash
-export KUBECONFIG=./terraform/kubeconfig.yaml
+export KUBECONFIG=./infra/terraform/kubeconfig.yaml
 
 # Install cert-manager
 kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.2/cert-manager.yaml

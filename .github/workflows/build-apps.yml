@@ -46,10 +46,6 @@ jobs:
           labels: |
             org.opencontainers.image.source=${{ github.repository }}
 
-      - name: Debug tree
-        run: |
-          echo "Building ${{ matrix.app }}"
-          ls -la apps/${{ matrix.app }}
       - name: Verify build context
         run: ls -R ./apps/${{ matrix.app }}
 

@@ -6,6 +6,7 @@ let items: Item[] = [{ id: 1, name: "first" }];
 const PORT = Number(process.env.PORT || 8080);
 const API_PREFIX = "/v1";
 const APP_PREFIX = "/items";
+const COMMIT_SHA = process.env.COMMIT_SHA || "unknown";
 
 function json(data: unknown, init: ResponseInit = {}) {
   return new Response(JSON.stringify(data), {
@@ -29,7 +30,7 @@ const openapi = {
         responses: {
           "200": {
             description: "OK",
-            content: { "application/json": { schema: { type: "object", properties: { status: { type: "string" } } } } },
+            content: { "application/json": { schema: { type: "object", properties: { status: { type: "string" }, commit: { type: "string" } } } } },
           },
         },
       },
@@ -104,7 +105,7 @@ async function handle(req: Request): Promise<Response> {
   path = path.slice(API_PREFIX.length) || "/";
 
   if (path === "/test1" && req.method === "GET") return json({ status: "test1" });
-  if (path === "/health" && req.method === "GET") return json({ status: "ok" });
+  if (path === "/health" && req.method === "GET") return json({ status: "ok", commit: COMMIT_SHA });
   if (path === "/items" && req.method === "GET") return json({ items });
 
   if (path === "/items" && req.method === "POST") {

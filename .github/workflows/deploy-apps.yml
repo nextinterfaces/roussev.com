@@ -28,6 +28,10 @@ jobs:
       - name: Apply K8s manifests
         run: kubectl apply -f infra/k8s/items-app-deployment.yaml
 
+      - name: Set commit SHA env
+        run: |
+          kubectl set env deployment/items-app -n default COMMIT_SHA=${{ github.sha }}
+
       - name: Update deployment image to current SHA
         run: |
           kubectl set image deployment/items-app items-app=ghcr.io/${{ github.repository_owner }}/items-app:sha-${{ github.sha }} -n default

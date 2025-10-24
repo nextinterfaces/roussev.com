@@ -39,8 +39,7 @@ kubectl apply -f https://github.com/cert-manager/cert-manager/releases/download/
 kubectl wait --namespace cert-manager --for=condition=ready pod --selector=app.kubernetes.io/instance=cert-manager --timeout=300s
 
 # Deploy Let's Encrypt issuers
-cd ../k8s
-kubectl apply -f letsencrypt-issuer.yaml
+kubectl apply -f infra/k8s/letsencrypt-issuer.yaml
 
 # Verify
 kubectl get clusterissuer
@@ -51,7 +50,7 @@ kubectl get pods -n cert-manager
 ### 5. Deploy Apps
 ```bash
 # Deploy application
-kubectl apply -f sample-service.yaml
+kubectl apply -f infra/k8s/apps/sample-service.yaml
 
 kubectl wait --namespace sample-app \
   --for=condition=available deployment/sample-rest-service \

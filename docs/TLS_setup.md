@@ -51,7 +51,7 @@ Let's Encrypt provides free SSL/TLS certificates. We'll configure both staging (
 
 ```bash
 # Apply the Let's Encrypt issuers
-kubectl apply -f k8s/letsencrypt-issuer.yaml
+kubectl apply -f infra/k8s/letsencrypt-issuer.yaml
 ```
 
 ### Verify Issuers

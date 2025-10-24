@@ -13,11 +13,26 @@ permissions:
   packages: write
 
 jobs:
+  discover-apps:
+    runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.set-apps.outputs.apps }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Discover apps
+        id: set-apps
+        run: |
+          apps=$(ls -d apps/*/ | xargs -n1 basename | jq -R -s -c 'split("\n")[:-1]')
+          echo "apps=$apps" >> $GITHUB_OUTPUT
+          echo "Discovered apps: $apps"
+
   build:
+    needs: discover-apps
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        app: [items-app]
+        app: ${{ fromJson(needs.discover-apps.outputs.apps) }}
 
     steps:
       - uses: actions/checkout@v4

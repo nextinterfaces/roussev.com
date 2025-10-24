@@ -4,14 +4,33 @@ on:
   push:
     branches: [ main ]
     paths:
-      - 'apps/items-app/**'
-      - 'infra/k8s/apps/items-app-deployment.yaml'
+      - 'apps/**'
+      - 'infra/k8s/apps/*-app-deployment.yaml'
       - '.github/workflows/deploy-apps.yml'
   workflow_dispatch:
 
 jobs:
-  deploy:
+  discover-apps:
     runs-on: ubuntu-latest
+    outputs:
+      apps: ${{ steps.set-apps.outputs.apps }}
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Discover apps from deployment files
+        id: set-apps
+        run: |
+          apps=$(ls infra/k8s/apps/*-app-deployment.yaml | xargs -n1 basename | sed 's/-deployment.yaml//' | jq -R -s -c 'split("\n")[:-1]')
+          echo "apps=$apps" >> $GITHUB_OUTPUT
+          echo "Discovered apps: $apps"
+
+  deploy:
+    needs: discover-apps
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        app: ${{ fromJson(needs.discover-apps.outputs.apps) }}
+    
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -26,15 +45,15 @@ jobs:
           chmod 600 ~/.kube/config
 
       - name: Apply K8s manifests
-        run: kubectl apply -f infra/k8s/apps/items-app-deployment.yaml
+        run: kubectl apply -f infra/k8s/apps/${{ matrix.app }}-deployment.yaml
 
       - name: Set commit SHA env
         run: |
-          kubectl set env deployment/items-app -n default COMMIT_SHA=${{ github.sha }}
+          kubectl set env deployment/${{ matrix.app }} -n default COMMIT_SHA=${{ github.sha }}
 
       - name: Update deployment image to current SHA
         run: |
-          kubectl set image deployment/items-app items-app=ghcr.io/${{ github.repository_owner }}/items-app:sha-${{ github.sha }} -n default
+          kubectl set image deployment/${{ matrix.app }} ${{ matrix.app }}=ghcr.io/${{ github.repository_owner }}/${{ matrix.app }}:sha-${{ github.sha }} -n default
 
       - name: Wait for rollout
-        run: kubectl rollout status deployment/items-app -n default
+        run: kubectl rollout status deployment/${{ matrix.app }} -n default

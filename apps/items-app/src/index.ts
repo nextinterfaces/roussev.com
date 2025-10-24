@@ -5,6 +5,7 @@ let items: Item[] = [{ id: 1, name: "first" }];
 
 const PORT = Number(process.env.PORT || 8080);
 const API_PREFIX = "/v1";
+const APP_PREFIX = "/items";
 
 function json(data: unknown, init: ResponseInit = {}) {
   return new Response(JSON.stringify(data), {
@@ -85,7 +86,7 @@ const swaggerHtml = `<!doctype html>
     <script src="https://unpkg.com/swagger-ui-dist@5/swagger-ui-bundle.js"></script>
     <script>
       window.onload = () => {
-        window.ui = SwaggerUIBundle({ url: '${API_PREFIX}/openapi.json', dom_id: '#swagger-ui' });
+        window.ui = SwaggerUIBundle({ url: '${APP_PREFIX}${API_PREFIX}/openapi.json', dom_id: '#swagger-ui' });
       };
     </script>
   </body>

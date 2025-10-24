@@ -79,10 +79,10 @@ spec:
   ingressClassName: nginx
   tls:
   - hosts:
-    - roussev.com
+    - app.roussev.com
     secretName: items-app-tls
   rules:
-  - host: roussev.com
+  - host: app.roussev.com
     http:
       paths:
       - path: /items(/|$)(.*)

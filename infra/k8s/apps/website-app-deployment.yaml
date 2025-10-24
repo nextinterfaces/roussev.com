@@ -79,9 +79,20 @@ spec:
   tls:
   - hosts:
     - roussev.com
+    - www.roussev.com
     secretName: website-app-tls
   rules:
   - host: roussev.com
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: website-app
+            port:
+              number: 80
+  - host: www.roussev.com
     http:
       paths:
       - path: /

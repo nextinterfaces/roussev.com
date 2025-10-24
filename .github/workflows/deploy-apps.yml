@@ -2,8 +2,12 @@ name: Deploy
 
 on:
   push:
-    branches: [main]
-#  workflow_dispatch:   # uncomment if you want manual runs
+    branches: [ main ]
+    paths:
+      - 'apps/items-app/**'
+      - 'k8s/items-app-deployment.yaml'
+      - '.github/workflows/deploy-apps.yml'
+  workflow_dispatch:
 
 jobs:
   deploy:

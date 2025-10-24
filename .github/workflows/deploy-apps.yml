@@ -22,4 +22,4 @@ jobs:
           chmod 600 ~/.kube/config
 
       - name: Apply K8s manifests
-        run: kubectl apply -f k8s/items-app-deployment.yaml
+        run: kubectl apply -f infra/k8s/items-app-deployment.yaml

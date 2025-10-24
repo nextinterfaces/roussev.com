@@ -12,7 +12,7 @@ metadata:
   labels:
     app: items-app
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: items-app
@@ -40,13 +40,13 @@ spec:
             cpu: "200m"
         livenessProbe:
           httpGet:
-            path: /
+            path: /v1/health
             port: 8080
           initialDelaySeconds: 10
           periodSeconds: 10
         readinessProbe:
           httpGet:
-            path: /
+            path: /v1/health
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5

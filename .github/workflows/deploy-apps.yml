@@ -27,3 +27,10 @@ jobs:
 
       - name: Apply K8s manifests
         run: kubectl apply -f infra/k8s/items-app-deployment.yaml
+
+      - name: Update deployment image to current SHA
+        run: |
+          kubectl set image deployment/items-app items-app=ghcr.io/${{ github.repository_owner }}/items-app:sha-${{ github.sha }} -n default
+
+      - name: Wait for rollout
+        run: kubectl rollout status deployment/items-app -n default

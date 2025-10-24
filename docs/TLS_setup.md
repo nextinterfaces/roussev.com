@@ -203,7 +203,7 @@ kubectl logs -n cert-manager -l app=cert-manager -f
 kubectl get pods,svc,ingress,certificate -n sample-app
 
 # View application logs
-kubectl logs -n sample-app -l app=sample-rest-service -f
+kubectl logs -n sample-app -l app=sample-app -f
 ```
 
 **Note:** cert-manager automatically renews certificates 30 days before expiration.

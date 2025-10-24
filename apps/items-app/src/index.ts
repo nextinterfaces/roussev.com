@@ -19,7 +19,7 @@ function notFound() {
 
 const openapi = {
   openapi: "3.0.3",
-  info: { title: "items API", version: "1.0.0", description: "Simple items service built with Bun" },
+  info: { title: "items API", version: "1.0.1", description: "Simple items service built with Bun" },
   servers: [{ url: API_PREFIX }],
   paths: {
     "/health": {
@@ -55,6 +55,17 @@ const openapi = {
         },
       },
     },
+    "/test1": {
+      get: {
+        summary: "Test endpoint",
+        responses: {
+          "200": {
+            description: "Test response",
+            content: { "application/json": { schema: { type: "object", properties: { status: { type: "string" } } } } },
+          },
+        },
+      },
+    },
   },
   components: {
     schemas: { Item: { type: "object", properties: { id: { type: "integer" }, name: { type: "string" } }, required: ["id", "name"] } },
@@ -80,17 +91,15 @@ const swaggerHtml = `<!doctype html>
   </body>
 </html>`;
 
-const swaggerResponse = new Response(swaggerHtml, { headers: { "content-type": "text/html; charset=utf-8" } });
-
 async function handle(req: Request): Promise<Response> {
   const url = new URL(req.url);
   let path = url.pathname;
 
   // Swagger UI & OpenAPI JSON
-  if (path === "/docs" && req.method === "GET") return swaggerResponse;
+  if (path === "/docs" && req.method === "GET") return new Response(swaggerHtml, { headers: { "content-type": "text/html; charset=utf-8" } });
   if (path === `${API_PREFIX}/openapi.json` && req.method === "GET") return json(openapi);
 
-  if (!path.startsWith(API_PREFIX)) return notFound();
+  // if (!path.startsWith(API_PREFIX)) return notFound();
   path = path.slice(API_PREFIX.length) || "/";
 
   if (path === "/test1" && req.method === "GET") return json({ status: "test1" });

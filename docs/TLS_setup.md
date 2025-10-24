@@ -143,21 +143,11 @@ kubectl logs -n cert-manager -l app=cert-manager -f
 
 ### Common Issues
 
-**1. DNS Not Propagated**
-- Wait 5-10 minutes for DNS to propagate
-- See [DNS_setup.md](DNS_setup.md) for DNS troubleshooting
+**1. DNS Not Propagated** - Wait 5-10 minutes. See [DNS_setup.md](DNS_setup.md) for troubleshooting.
 
-**2. Port 80 Blocked**
-- Let's Encrypt uses HTTP-01 challenge which requires port 80
-- Verify firewall: Port 80 must be open
+**2. Port 80 Blocked** - Let's Encrypt HTTP-01 challenge requires port 80. Verify firewall.
 
-**3. Rate Limit Hit**
-- Let's Encrypt production has a limit of 5 certificates per domain per week
-- Use the staging issuer for testing (see below)
-
-### Test Before DNS Propagates
-
-See [DNS_setup.md](DNS_setup.md) for detailed instructions on testing before DNS propagates.
+**3. Rate Limit Hit** - Let's Encrypt production has a limit of 5 certificates per domain per week. Use staging issuer for testing (see below).
 
 ---
 
@@ -199,46 +189,21 @@ kubectl get certificate -n sample-app -w
 
 ## Certificate Auto-Renewal
 
-cert-manager automatically renews certificates 30 days before expiration.
-
-### Monitor Renewal
-
+cert-manager automatically renews certificates 30 days before expiration. Monitor with:
 ```bash
-# Watch cert-manager logs
 kubectl logs -n cert-manager -l app=cert-manager -f
-
-# Check certificate expiration
-kubectl get certificate -n sample-app -o wide
 ```
 
 ---
 
 ## Monitoring and Maintenance
 
-### Check Service Status
-
 ```bash
 # Check all components
-kubectl get pods -n sample-app
-kubectl get svc -n sample-app
-kubectl get ingress -n sample-app
-kubectl get certificate -n sample-app
-
-# Check certificate expiration
-kubectl get certificate -n sample-app -o wide
+kubectl get pods,svc,ingress,certificate -n sample-app
 
 # View application logs
-kubectl logs -n sample-app -l app=sample-rest-service
-
-# Follow logs in real-time
-kubectl logs -n sample-app -l app=sample-rest-service -f
-```
-
-### Certificate Expiration
-
-```bash
-# Check certificate details
-kubectl describe certificate sample-rest-tls -n sample-app
+kubectl logs -n sample-app -l app=sample-app -f
 ```
 
 **Note:** cert-manager automatically renews certificates 30 days before expiration.

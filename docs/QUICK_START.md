@@ -50,10 +50,10 @@ kubectl get pods -n cert-manager
 ### 5. Deploy Apps
 ```bash
 # Deploy application
-kubectl apply -f infra/k8s/apps/sample-service.yaml
+kubectl apply -f infra/k8s/apps/sample-app-deployment.yaml
 
 kubectl wait --namespace sample-app \
-  --for=condition=available deployment/sample-rest-service \
+  --for=condition=available deployment/sample-app \
   --timeout=300s
   
 # Verify

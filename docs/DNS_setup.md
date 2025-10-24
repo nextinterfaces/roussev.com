@@ -103,24 +103,16 @@ Verify nameservers are updated:
 dig +short roussev.com NS
 ```
 
-Expected output:
-```
-helium.ns.hetzner.de.
-oxygen.ns.hetzner.com.
-hydrogen.ns.hetzner.com.
-```
+Expected output: `helium.ns.hetzner.de`, `oxygen.ns.hetzner.com`, `hydrogen.ns.hetzner.com`
 
 Verify A record is resolving:
 ```bash
 dig +short roussev.com A
 ```
 
-Expected output:
-```
-<your-k3s-server-ip>
-```
+Expected output: Your K3s server IP
 
-You can also check propagation status online: https://dnschecker.org/#A/roussev.com
+Check propagation status: https://dnschecker.org/#A/roussev.com
 
 ---
 
@@ -132,28 +124,17 @@ You can also check propagation status online: https://dnschecker.org/#A/roussev.
 
 **Solution:**
 ```bash
-# Check global DNS (should show new IP)
-dig @8.8.8.8 roussev.com A +short
+# Check global DNS vs local DNS
+dig @8.8.8.8 roussev.com A +short  # Google DNS (should show new IP)
+dig roussev.com A +short            # Local DNS (might be cached)
 
-# Check local DNS (might be cached)
-dig roussev.com A +short
-
-# Clear local DNS cache (macOS)
-sudo dscacheutil -flushcache
-sudo killall -HUP mDNSResponder
-
-# Clear local DNS cache (Linux)
-sudo systemd-resolve --flush-caches
-
-# Clear local DNS cache (Windows)
-ipconfig /flushdns
+# Clear DNS cache - run the script
+./scripts/clear-dns-cache.sh
 ```
 
 ### DNS Propagation Taking Too Long
 
-- **Wait:** DNS propagation can take up to 24-48 hours globally
-- **Check multiple locations:** Use https://dnschecker.org to monitor propagation status
-- **Test with specific DNS servers:** Use `dig @8.8.8.8` to bypass your local cache
+DNS propagation can take up to 24-48 hours globally. Check https://dnschecker.org to monitor propagation status.
 
 ### Test Before DNS Fully Propagates
 

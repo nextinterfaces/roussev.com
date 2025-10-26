@@ -39,99 +39,165 @@ body {
     line-height: 1.5;
 }
 
-/* GitHub Markdown Body */
-.markdown-body {
-    max-width: 1012px;
-    margin: 24px auto;
-    padding: 0 16px;
+/* Profile Container */
+.profile-container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 24px 32px;
 }
 
-/* File Header (like GitHub's README header) */
-.file-header {
-    background-color: var(--bg-secondary);
-    border: 1px solid var(--border-primary);
-    border-radius: 6px 6px 0 0;
-    padding: 16px;
-    margin-bottom: -1px;
+/* Profile Header */
+.profile-header {
+    margin-bottom: 16px;
 }
 
-.file-header-text {
-    display: flex;
-    align-items: center;
-    gap: 8px;
+.profile-path {
     font-size: 14px;
-    font-weight: 600;
     color: var(--text-primary);
+    font-weight: 400;
 }
 
-.octicon {
-    color: var(--text-secondary);
-}
-
-/* Markdown Content */
-.markdown-content {
+/* Profile Content */
+.profile-content {
     background-color: var(--bg-tertiary);
     border: 1px solid var(--border-primary);
-    border-radius: 0 0 6px 6px;
+    border-radius: 6px;
     padding: 32px;
+    margin-bottom: 24px;
 }
 
-.markdown-content h1 {
+.profile-content h1 {
     font-size: 32px;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border-secondary);
+    line-height: 1.25;
 }
 
-.markdown-content h2 {
-    font-size: 24px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-top: 24px;
-    margin-bottom: 16px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid var(--border-secondary);
-}
-
-.markdown-content h3 {
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--text-primary);
-    margin-top: 24px;
-    margin-bottom: 16px;
-}
-
-.markdown-content p {
+.profile-content p {
     margin-bottom: 16px;
     color: var(--text-primary);
     line-height: 1.6;
+    font-size: 16px;
 }
 
-.markdown-content ul,
-.markdown-content ol {
-    margin-bottom: 16px;
-    padding-left: 32px;
+.profile-content p:last-child {
+    margin-bottom: 0;
 }
 
-.markdown-content li {
-    margin-top: 4px;
-    color: var(--text-primary);
-}
-
-.markdown-content li strong {
-    color: var(--text-primary);
-    font-weight: 600;
-}
-
-.markdown-content a {
+.profile-content a {
     color: var(--link-color);
     text-decoration: none;
 }
 
-.markdown-content a:hover {
+.profile-content a:hover {
     text-decoration: underline;
+}
+
+/* Pinned Section */
+.pinned-section {
+    margin-top: 32px;
+}
+
+.pinned-title {
+    font-size: 16px;
+    font-weight: 400;
+    color: var(--text-primary);
+    margin-bottom: 16px;
+}
+
+/* Pinned Grid */
+.pinned-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+/* Repo Card */
+.repo-card {
+    background-color: var(--bg-tertiary);
+    border: 1px solid var(--border-primary);
+    border-radius: 6px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    transition: border-color 0.2s ease;
+}
+
+.repo-card:hover {
+    border-color: var(--text-secondary);
+}
+
+.repo-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.repo-icon {
+    color: var(--text-secondary);
+    flex-shrink: 0;
+}
+
+.repo-name {
+    color: var(--link-color);
+    font-size: 14px;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.repo-name:hover {
+    text-decoration: underline;
+}
+
+.repo-badge {
+    font-size: 12px;
+    padding: 2px 7px;
+    border: 1px solid var(--border-primary);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.repo-description {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin: 0;
+    flex-grow: 1;
+}
+
+.repo-meta {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.repo-language {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.language-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+}
+
+.repo-stat {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.repo-stat svg {
+    fill: var(--text-secondary);
 }
 
 /* Code Blocks */
@@ -167,29 +233,23 @@ code {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-    .markdown-body {
-        margin: 16px auto;
-        padding: 0 8px;
-    }
-
-    .markdown-content {
+    .profile-container {
         padding: 16px;
     }
 
-    .file-header {
+    .profile-content {
+        padding: 16px;
+    }
+
+    .profile-content h1 {
+        font-size: 24px;
+    }
+
+    .pinned-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .repo-card {
         padding: 12px;
-    }
-
-    .markdown-content h1 {
-        font-size: 28px;
-    }
-
-    .markdown-content h2 {
-        font-size: 20px;
-    }
-
-    .markdown-content ul,
-    .markdown-content ol {
-        padding-left: 24px;
     }
 }

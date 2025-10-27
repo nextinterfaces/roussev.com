@@ -224,7 +224,7 @@ tasks:
       - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/website-app 8080:80
 
   # SSH tasks
-  ssh:server:
+  ssh:
     desc: SSH into the K3s server
     dir: "{{.TERRAFORM_DIR}}"
     cmds:

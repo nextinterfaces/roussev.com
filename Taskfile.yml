@@ -19,6 +19,23 @@ tasks:
     cmds:
       - bun install && bun run dev
 
+  dev:items-app:postgres:
+    desc: Run items-app locally with PostgreSQL connection (requires port-forward)
+    dir: apps/items-app
+    cmds:
+      - |
+        echo "Make sure PostgreSQL is port-forwarded: task postgres:port-forward"
+        echo "Loading credentials from .env..."
+        set -a
+        source ../../.env
+        set +a
+        export DB_HOST=localhost
+        export DB_PORT=5432
+        export DB_USER=$POSTGRES_USER
+        export DB_PASSWORD=$POSTGRES_PASSWORD
+        export DB_NAME=$POSTGRES_DB
+        bun install && bun run dev
+
   dev:website-app:
     desc: Run website-app in development mode with hot reload
     dir: apps/website-app
@@ -140,6 +157,9 @@ tasks:
     desc: Deploy items-app to Kubernetes
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/apps/items-app-deployment.yaml
+      - echo "✅ items-app deployed"
+      - echo "Waiting for rollout to complete..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/items-app --timeout=120s
 
   deploy:website-app:
     desc: Deploy website-app to Kubernetes
@@ -151,6 +171,15 @@ tasks:
     cmds:
       - task: deploy:items-app
       - task: deploy:website-app
+
+  deploy:items-app:with-postgres:
+    desc: Deploy PostgreSQL and items-app together
+    cmds:
+      - task: deploy:postgres
+      - echo "Waiting for PostgreSQL to be ready before deploying items-app..."
+      - sleep 5
+      - task: deploy:items-app
+      - echo "✅ PostgreSQL and items-app deployed successfully!"
 
   deploy:cert-manager:
     desc: Deploy cert-manager

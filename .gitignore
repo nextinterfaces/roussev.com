@@ -35,4 +35,4 @@ Hetzner_DNS_Setup.md
 setup.sh
 .ignore
 
-
+node_modules

@@ -24,7 +24,6 @@ See [docs/QUICK_START.md](docs/QUICK_START.md)
 ## Next Steps
 
 - Set up monitoring with Prometheus/Grafana
-- Configure persistent storage with Longhorn or Hetzner Cloud Volumes
 - Add more worker nodes for high availability
 - Implement GitOps with ArgoCD or Flux
 - Set up automatic backups with Velero

@@ -21,11 +21,6 @@ This project uses [Task](https://taskfile.dev/) to common development workflows,
 
 See [docs/QUICK_START.md](docs/QUICK_START.md)
 
-## Detailed Docs
-
-- [docs/DNS_Setup.md](docs/DNS_Setup.md)
-- [docs/TLS_setup.md](docs/TLS_Setup.md)
-
 ## Next Steps
 
 - Set up monitoring with Prometheus/Grafana

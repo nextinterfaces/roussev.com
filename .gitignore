@@ -24,6 +24,10 @@ Thumbs.db
 *.swo
 *~
 
+# Task
+Taskfile.local.yml
+.task/
+
 K3S_TLS_setup.md
 commands.txt
 steps.mmd

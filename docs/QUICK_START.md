@@ -76,7 +76,7 @@ kubectl logs -n cert-manager -l app=cert-manager
 ```
 
 ### DNS Not Resolving
-Wait 5-10 minutes for DNS propagation. See [DNS_setup.md](DNS_setup.md) for detailed troubleshooting.
+Wait 5-10 minutes for DNS propagation. See [DNS_setup.md](DNS_Setup.md) for detailed troubleshooting.
 
 ### Test Before DNS Propagates
 ```bash
@@ -86,8 +86,8 @@ curl https://roussev.com/api --resolve roussev.com:443:$SERVER_IP
 
 ## Detailed Docs
 
-1. **DNS Configuration:** [DNS_setup.md](DNS_setup.md)
-2. **TLS Setup:** [TLS_setup.md](TLS_setup.md)
+1. **DNS Configuration:** [DNS_setup.md](DNS_Setup.md)
+2. **TLS Setup:** [TLS_setup.md](TLS_Setup.md)
 
 ## Utilities
 

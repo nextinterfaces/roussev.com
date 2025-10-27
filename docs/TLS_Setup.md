@@ -7,7 +7,7 @@ This guide explains how to configure HTTPS for your K3s services using cert-mana
 ## Prerequisites
 
 - K3s cluster running on Hetzner Cloud
-- DNS configured and pointing to your K3s server (see [DNS_setup.md](DNS_setup.md))
+- DNS configured and pointing to your K3s server (see [DNS_setup.md](DNS_Setup.md))
 - kubectl configured with your cluster's kubeconfig
 - Domain name (e.g., roussev.com)
 - services are deployed (see [Deploy_services.md](DEPLOY_services.md))
@@ -143,7 +143,7 @@ kubectl logs -n cert-manager -l app=cert-manager -f
 
 ### Common Issues
 
-**1. DNS Not Propagated** - Wait 5-10 minutes. See [DNS_setup.md](DNS_setup.md) for troubleshooting.
+**1. DNS Not Propagated** - Wait 5-10 minutes. See [DNS_setup.md](DNS_Setup.md) for troubleshooting.
 
 **2. Port 80 Blocked** - Let's Encrypt HTTP-01 challenge requires port 80. Verify firewall.
 

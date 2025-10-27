@@ -1,0 +1,232 @@
+version: '3'
+
+vars:
+  KUBECONFIG: ./infra/terraform/kubeconfig.yaml
+  TERRAFORM_DIR: ./infra/terraform
+  K8S_DIR: ./infra/k8s
+  APPS_DIR: ./apps
+
+tasks:
+  default:
+    desc: List all available tasks
+    cmds:
+      - task --list
+
+  # Development tasks
+  dev:items-app:
+    desc: Run items-app in development mode with hot reload
+    dir: apps/items-app
+    cmds:
+      - bun install && bun run dev
+
+  dev:website-app:
+    desc: Run website-app in development mode with hot reload
+    dir: apps/website-app
+    cmds:
+      - bun install && bun run dev
+
+  # Docker tasks
+  docker:build:items-app:
+    desc: Build Docker image for items-app
+    cmds:
+      - docker build -t items-app:local ./apps/items-app
+
+  docker:build:website-app:
+    desc: Build Docker image for website-app
+    cmds:
+      - docker build -t website-app:local ./apps/website-app
+
+  docker:build:all:
+    desc: Build Docker images for all apps
+    cmds:
+      - task: docker:build:items-app
+      - task: docker:build:website-app
+
+  docker:run:items-app:
+    desc: Run items-app Docker container locally
+    cmds:
+      - docker run --rm -p 8080:8080 items-app:local
+
+  docker:run:website-app:
+    desc: Run website-app Docker container locally
+    cmds:
+      - docker run --rm -p 8080:8080 website-app:local
+
+  # Terraform tasks
+  tf:init:
+    desc: Initialize Terraform
+    dir: "{{.TERRAFORM_DIR}}"
+    cmds:
+      - terraform init
+
+  tf:plan:
+    desc: Run Terraform plan
+    dir: "{{.TERRAFORM_DIR}}"
+    cmds:
+      - terraform plan
+
+  tf:apply:
+    desc: Apply Terraform configuration
+    dir: "{{.TERRAFORM_DIR}}"
+    cmds:
+      - terraform apply
+
+  tf:destroy:
+    desc: Destroy Terraform infrastructure
+    dir: "{{.TERRAFORM_DIR}}"
+    cmds:
+      - terraform destroy
+
+  tf:output:
+    desc: Show Terraform outputs
+    dir: "{{.TERRAFORM_DIR}}"
+    cmds:
+      - terraform output
+
+  tf:get-ip:
+    desc: Get server IP from Terraform
+    dir: "{{.TERRAFORM_DIR}}"
+    cmds:
+      - terraform output -raw server_ip
+
+  # Kubernetes tasks
+  k8s:config:
+    desc: Set KUBECONFIG environment variable
+    cmds:
+      - echo "export KUBECONFIG={{.KUBECONFIG}}"
+
+  k8s:get-pods:
+    desc: Get all pods
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} get pods
+
+  k8s:get-services:
+    desc: Get all services
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} get services
+
+  k8s:get-ingress:
+    desc: Get all ingress resources
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} get ingress
+
+  k8s:get-all:
+    desc: Get all Kubernetes resources
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} get all
+
+  k8s:logs:items-app:
+    desc: Get logs from items-app
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} logs -l app=items-app --tail=100 -f
+
+  k8s:logs:website-app:
+    desc: Get logs from website-app
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} logs -l app=website-app --tail=100 -f
+
+  k8s:describe:items-app:
+    desc: Describe items-app deployment
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} describe deployment items-app
+
+  k8s:describe:website-app:
+    desc: Describe website-app deployment
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} describe deployment website-app
+
+  # Deployment tasks
+  deploy:items-app:
+    desc: Deploy items-app to Kubernetes
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/apps/items-app-deployment.yaml
+
+  deploy:website-app:
+    desc: Deploy website-app to Kubernetes
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/apps/website-app-deployment.yaml
+
+  deploy:all:
+    desc: Deploy all apps to Kubernetes
+    cmds:
+      - task: deploy:items-app
+      - task: deploy:website-app
+
+  deploy:cert-manager:
+    desc: Deploy cert-manager
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f https://github.com/cert-manager/cert-manager/releases/download/v1.13.3/cert-manager.yaml
+
+  deploy:cluster-issuer:
+    desc: Deploy Let's Encrypt cluster issuer
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/cert-manager/cluster-issuer.yaml
+
+  # Rollout tasks
+  rollout:restart:items-app:
+    desc: Restart items-app deployment
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout restart deployment/items-app
+
+  rollout:restart:website-app:
+    desc: Restart website-app deployment
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout restart deployment/website-app
+
+  rollout:status:items-app:
+    desc: Check rollout status for items-app
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/items-app
+
+  rollout:status:website-app:
+    desc: Check rollout status for website-app
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/website-app
+
+  # DNS and networking tasks
+  dns:clear-cache:
+    desc: Clear DNS cache (macOS)
+    cmds:
+      - ./scripts/clear-dns-cache.sh
+
+  dns:check:
+    desc: Check DNS resolution for roussev.com
+    cmds:
+      - dig @8.8.8.8 roussev.com A +short
+      - dig @1.1.1.1 roussev.com A +short
+      - dig roussev.com A +short
+
+  # Health check tasks
+  health:items-app:
+    desc: Check health of items-app (local)
+    cmds:
+      - curl -s https://app.roussev.com/items/v1/health | jq
+
+  health:website-app:
+    desc: Check health of website-app (local)
+    cmds:
+      - curl -s https://roussev.com/health | jq
+
+  clean:docker:
+    desc: Clean Docker images
+    cmds:
+      - docker rmi items-app:local website-app:local || true
+
+  # Port forwarding tasks
+  port-forward:items-app:
+    desc: Port forward to items-app pod
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/items-app 8080:80
+
+  port-forward:website-app:
+    desc: Port forward to website-app pod
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/website-app 8080:80
+
+  # SSH tasks
+  ssh:server:
+    desc: SSH into the K3s server
+    dir: "{{.TERRAFORM_DIR}}"
+    cmds:
+      - ssh -i ssh_key.pem -o StrictHostKeyChecking=no root@$(terraform output -raw server_ip)
+

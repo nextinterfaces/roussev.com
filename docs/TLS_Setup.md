@@ -220,16 +220,3 @@ Once SSL/TLS is working:
 4. **Configure backups** for your cluster
 5. **Add a CI/CD pipeline** for automated deployments
 6. **Create a staging environment** for testing
-
----
-
-## Summary
-
-| Component              | Description                                | Status |
-|------------------------|--------------------------------------------|--------|
-| Sample Application     | Test REST service                          | ✅     |
-| cert-manager           | Manages certificate lifecycle              | ✅     |
-| letsencrypt-prod       | Production ACME issuer (HTTP-01 challenge) | ✅     |
-| letsencrypt-staging    | Staging ACME issuer (for testing)          | ✅     |
-| sample-rest-tls        | TLS certificate secret                     | ✅     |
-| Auto-renewal           | Renews 30 days before expiration           | ✅     |

@@ -346,6 +346,8 @@ tasks:
   postgres:status:
     desc: Check PostgreSQL status
     cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} get pv
+      - kubectl --kubeconfig={{.KUBECONFIG}} get pvc
       - kubectl --kubeconfig={{.KUBECONFIG}} get statefulset postgres
       - kubectl --kubeconfig={{.KUBECONFIG}} get pods -l app=postgres
       - kubectl --kubeconfig={{.KUBECONFIG}} get svc postgres

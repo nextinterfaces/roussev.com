@@ -230,3 +230,132 @@ tasks:
     cmds:
       - ssh -i ssh_key.pem -o StrictHostKeyChecking=no root@$(terraform output -raw server_ip)
 
+  # Hetzner CSI Driver tasks
+  deploy:hetzner-csi:
+    desc: Install Hetzner CSI driver (required for Hetzner Cloud Volumes)
+    cmds:
+      - echo "⚠️  Make sure you have created the hcloud secret first!"
+      - echo "Run - kubectl --kubeconfig={{.KUBECONFIG}} create secret generic hcloud --from-literal=token=YOUR_HETZNER_API_TOKEN -n kube-system"
+      - echo ""
+      - echo "Installing Hetzner CSI driver..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f https://raw.githubusercontent.com/hetznercloud/csi-driver/main/deploy/kubernetes/hcloud-csi.yml
+      - echo "Waiting for CSI driver to be ready..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} wait --namespace kube-system --for=condition=ready pod --selector=app=hcloud-csi-controller --timeout=300s
+      - echo "✅ Hetzner CSI driver installed successfully!"
+      - kubectl --kubeconfig={{.KUBECONFIG}} get storageclass
+
+  check:hetzner-csi:
+    desc: Check if Hetzner CSI driver is installed
+    cmds:
+      - echo "Checking Hetzner CSI driver..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} get pods -n kube-system | grep hcloud || echo "❌ Hetzner CSI driver not found"
+      - echo ""
+      - echo "Storage classes:"
+      - kubectl --kubeconfig={{.KUBECONFIG}} get storageclass
+
+  # PostgreSQL tasks
+  postgres:create-secret:
+    desc: Create PostgreSQL secret from .env file
+    cmds:
+      - |
+        set -a
+        source .env
+        set +a
+        kubectl --kubeconfig={{.KUBECONFIG}} create secret generic postgres-secret \
+          --from-literal=POSTGRES_USER="$POSTGRES_USER" \
+          --from-literal=POSTGRES_PASSWORD="$POSTGRES_PASSWORD" \
+          --from-literal=POSTGRES_DB="$POSTGRES_DB" \
+          --dry-run=client -o yaml | kubectl --kubeconfig={{.KUBECONFIG}} apply -f -
+      - echo "✅ PostgreSQL secret created/updated successfully"
+
+  postgres:delete-secret:
+    desc: Delete PostgreSQL secret
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} delete secret postgres-secret --ignore-not-found=true
+      - echo "✅ PostgreSQL secret deleted"
+
+  deploy:postgres:
+    desc: Deploy PostgreSQL with persistent storage
+    deps:
+      - postgres:create-secret
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/storage/postgres-pv.yaml
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/storage/postgres-pvc.yaml
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/storage/postgres-statefulset.yaml
+      - echo "Waiting for PostgreSQL to be ready..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} wait --for=condition=ready pod -l app=postgres --timeout=300s
+      - echo "✅ PostgreSQL deployed successfully"
+
+  k8s:get-pv:
+    desc: Get all persistent volumes
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} get pv
+
+  k8s:get-pvc:
+    desc: Get all persistent volume claims
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} get pvc
+
+  k8s:logs:postgres:
+    desc: Get logs from PostgreSQL
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} logs -l app=postgres --tail=100 -f
+
+  k8s:describe:postgres:
+    desc: Describe PostgreSQL statefulset
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} describe statefulset postgres
+
+  postgres:connect:
+    desc: Connect to PostgreSQL using psql
+    cmds:
+      - |
+        POSTGRES_USER=$(kubectl --kubeconfig={{.KUBECONFIG}} get secret postgres-secret -o jsonpath='{.data.POSTGRES_USER}' | base64 -d)
+        POSTGRES_DB=$(kubectl --kubeconfig={{.KUBECONFIG}} get secret postgres-secret -o jsonpath='{.data.POSTGRES_DB}' | base64 -d)
+        kubectl --kubeconfig={{.KUBECONFIG}} exec -it postgres-0 -- psql -U "$POSTGRES_USER" -d "$POSTGRES_DB"
+
+  postgres:status:
+    desc: Check PostgreSQL status
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} get statefulset postgres
+      - kubectl --kubeconfig={{.KUBECONFIG}} get pods -l app=postgres
+      - kubectl --kubeconfig={{.KUBECONFIG}} get svc postgres
+      - echo ""
+      - echo "PostgreSQL Credentials (from secret):"
+      - |
+        POSTGRES_USER=$(kubectl --kubeconfig={{.KUBECONFIG}} get secret postgres-secret -o jsonpath='{.data.POSTGRES_USER}' | base64 -d)
+        POSTGRES_DB=$(kubectl --kubeconfig={{.KUBECONFIG}} get secret postgres-secret -o jsonpath='{.data.POSTGRES_DB}' | base64 -d)
+        echo "  User: $POSTGRES_USER"
+        echo "  Database: $POSTGRES_DB"
+
+  postgres:port-forward:
+    desc: Port forward to PostgreSQL
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/postgres 5432:5432
+
+  postgres:backup:
+    desc: Backup PostgreSQL database
+    cmds:
+      - |
+        POSTGRES_USER=$(kubectl --kubeconfig={{.KUBECONFIG}} get secret postgres-secret -o jsonpath='{.data.POSTGRES_USER}' | base64 -d)
+        POSTGRES_DB=$(kubectl --kubeconfig={{.KUBECONFIG}} get secret postgres-secret -o jsonpath='{.data.POSTGRES_DB}' | base64 -d)
+        BACKUP_FILE="backup-$(date +%Y%m%d-%H%M%S).sql"
+        kubectl --kubeconfig={{.KUBECONFIG}} exec postgres-0 -- pg_dump -U "$POSTGRES_USER" "$POSTGRES_DB" > "$BACKUP_FILE"
+        echo "✅ Backup saved to $BACKUP_FILE"
+
+  postgres:disk-usage:
+    desc: Check PostgreSQL disk usage
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} exec postgres-0 -- df -h /var/lib/postgresql/data
+
+  postgres:show-credentials:
+    desc: Show PostgreSQL credentials from secret
+    cmds:
+      - |
+        echo "PostgreSQL Credentials:"
+        echo "  User: $(kubectl --kubeconfig={{.KUBECONFIG}} get secret postgres-secret -o jsonpath='{.data.POSTGRES_USER}' | base64 -d)"
+        echo "  Password: $(kubectl --kubeconfig={{.KUBECONFIG}} get secret postgres-secret -o jsonpath='{.data.POSTGRES_PASSWORD}' | base64 -d)"
+        echo "  Database: $(kubectl --kubeconfig={{.KUBECONFIG}} get secret postgres-secret -o jsonpath='{.data.POSTGRES_DB}' | base64 -d)"
+        echo ""
+        echo "⚠️  Keep these credentials secure!"
+

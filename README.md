@@ -34,7 +34,3 @@ See [docs/QUICK_START.md](docs/QUICK_START.md)
 - Add more worker nodes for high availability
 - Implement GitOps with ArgoCD or Flux
 - Set up automatic backups with Velero
-
-## License
-
-MIT

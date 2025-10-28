@@ -1,10 +1,10 @@
-# PostgreSQL Deployment Checklist
+# PostgreSQL Deployment
 
 Checklist for deploying PostgreSQL with Hetzner Cloud Volume to K3s cluster.
 
 ## Pre-Deployment Checklist
 
-- [ ] Hetzner Cloud Volume created (`k3s-server-volume-1`, ID: `103823462`)
+- [ ] Hetzner Cloud Volume created (e.g. `k3s-server-volume-1`, ID: `103823462`)
 - [ ] Volume attached to `k3s-server` in Hetzner Console
 - [ ] kubectl configured with cluster access
 - [ ] Hetzner CSI driver installed (verify with `kubectl get pods -n kube-system | grep hcloud-csi`)
@@ -30,7 +30,6 @@ POSTGRES_DB=your_database_name
 
 ### 2. Deploy PostgreSQL
 
-Using Taskfile (recommended):
 ```bash
 task deploy:postgres
 ```
@@ -46,7 +45,6 @@ This will:
 ```bash
 task postgres:status
 ```
-
 
 ### 4. Test PostgreSQL Connection
 
@@ -80,7 +78,6 @@ task k8s:describe:postgres
 
 ## Troubleshooting
 
-
 ```bash
 # pod stuck
 kubectl describe pod postgres-0
@@ -111,11 +108,9 @@ kubectl run -it --rm debug --image=postgres:16-alpine --restart=Never -- psql -h
 ```
 
 
-## Next Steps
+## TODO
 
 - [ ] Set up automated backups (CronJob)
 - [ ] Configure monitoring (Prometheus/Grafana)
 - [ ] Implement connection pooling (PgBouncer)
 - [ ] Set up network policies to restrict access
-- [ ] Configure SSL/TLS for PostgreSQL connections
-

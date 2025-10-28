@@ -157,4 +157,4 @@ curl http://$SERVER_IP/api -H "Host: roussev.com"
 
 After DNS is configured and verified, proceed to TLS setup:
 
-**Continue to:** [TLS_setup.md](TLS_Setup.md) for SSL certificate configuration
+**Continue to:** [TLS_setup.md](TLS_Setup.md) for TLS certificate configuration

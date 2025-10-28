@@ -207,16 +207,3 @@ kubectl logs -n sample-app -l app=sample-app -f
 ```
 
 **Note:** cert-manager automatically renews certificates 30 days before expiration.
-
----
-
-## Next Steps
-
-Once SSL/TLS is working:
-
-1. **Deploy your actual application** (replace the sample service)
-2. **Add SSL/TLS to additional services** using the same Ingress pattern
-3. **Set up monitoring** with Prometheus/Grafana
-4. **Configure backups** for your cluster
-5. **Add a CI/CD pipeline** for automated deployments
-6. **Create a staging environment** for testing

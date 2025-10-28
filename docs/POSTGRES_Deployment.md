@@ -95,7 +95,6 @@ lsblk
 df -h
 ```
 
-
 ### Connection refused from items-service
 ```bash
 # Verify service is accessible
@@ -106,7 +105,6 @@ POSTGRES_USER=$(kubectl get secret postgres-secret -o jsonpath='{.data.POSTGRES_
 POSTGRES_DB=$(kubectl get secret postgres-secret -o jsonpath='{.data.POSTGRES_DB}' | base64 -d)
 kubectl run -it --rm debug --image=postgres:16-alpine --restart=Never -- psql -h postgres -U "$POSTGRES_USER" -d "$POSTGRES_DB"
 ```
-
 
 ## TODO
 

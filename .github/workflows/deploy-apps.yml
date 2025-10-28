@@ -5,7 +5,7 @@ on:
     branches: [ main ]
     paths:
       - 'apps/**'
-      - 'infra/k8s/apps/*-app-deployment.yaml'
+      - 'infra/k8s/apps/*-deployment.yaml'
       - '.github/workflows/deploy-apps.yml'
   workflow_dispatch:
 
@@ -20,7 +20,7 @@ jobs:
       - name: Discover apps from deployment files
         id: set-apps
         run: |
-          apps=$(ls infra/k8s/apps/*-app-deployment.yaml | xargs -n1 basename | sed 's/-deployment.yaml//' | jq -R -s -c 'split("\n")[:-1]')
+          apps=$(ls infra/k8s/apps/*-deployment.yaml | xargs -n1 basename | sed 's/-deployment.yaml//' | jq -R -s -c 'split("\n")[:-1]')
           echo "apps=$apps" >> $GITHUB_OUTPUT
           echo "Discovered apps: $apps"
 

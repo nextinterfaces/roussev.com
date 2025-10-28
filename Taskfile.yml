@@ -13,15 +13,15 @@ tasks:
       - task --list
 
   # Development tasks
-  dev:items-app:
-    desc: Run items-app in development mode with hot reload
-    dir: apps/items-app
+  dev:items-service:
+    desc: Run items-service in development mode with hot reload
+    dir: apps/items-service
     cmds:
       - bun install && bun run dev
 
-  dev:items-app:postgres:
-    desc: Run items-app locally with PostgreSQL connection (requires port-forward)
-    dir: apps/items-app
+  dev:items-service:postgres:
+    desc: Run items-service locally with PostgreSQL connection (requires port-forward)
+    dir: apps/items-service
     cmds:
       - |
         echo "Make sure PostgreSQL is port-forwarded: task postgres:port-forward"
@@ -43,10 +43,10 @@ tasks:
       - bun install && bun run dev
 
   # Docker tasks
-  docker:build:items-app:
-    desc: Build Docker image for items-app
+  docker:build:items-service:
+    desc: Build Docker image for items-service
     cmds:
-      - docker build -t items-app:local ./apps/items-app
+      - docker build -t items-service:local ./apps/items-service
 
   docker:build:website-app:
     desc: Build Docker image for website-app
@@ -56,13 +56,13 @@ tasks:
   docker:build:all:
     desc: Build Docker images for all apps
     cmds:
-      - task: docker:build:items-app
+      - task: docker:build:items-service
       - task: docker:build:website-app
 
-  docker:run:items-app:
-    desc: Run items-app Docker container locally
+  docker:run:items-service:
+    desc: Run items-service Docker container locally
     cmds:
-      - docker run --rm -p 8080:8080 items-app:local
+      - docker run --rm -p 8080:8080 items-service:local
 
   docker:run:website-app:
     desc: Run website-app Docker container locally
@@ -132,20 +132,20 @@ tasks:
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} get all
 
-  k8s:logs:items-app:
-    desc: Get logs from items-app
+  k8s:logs:items-service:
+    desc: Get logs from items-service
     cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} logs -l app=items-app --tail=100 -f
+      - kubectl --kubeconfig={{.KUBECONFIG}} logs -l app=items-service --tail=100 -f
 
   k8s:logs:website-app:
     desc: Get logs from website-app
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} logs -l app=website-app --tail=100 -f
 
-  k8s:describe:items-app:
-    desc: Describe items-app deployment
+  k8s:describe:items-service:
+    desc: Describe items-service deployment
     cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} describe deployment items-app
+      - kubectl --kubeconfig={{.KUBECONFIG}} describe deployment items-service
 
   k8s:describe:website-app:
     desc: Describe website-app deployment
@@ -153,13 +153,13 @@ tasks:
       - kubectl --kubeconfig={{.KUBECONFIG}} describe deployment website-app
 
   # Deployment tasks
-  deploy:items-app:
-    desc: Deploy items-app to Kubernetes
+  deploy:items-service:
+    desc: Deploy items-service to Kubernetes
     cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/apps/items-app-deployment.yaml
-      - echo "✅ items-app deployed"
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/apps/items-service-deployment.yaml
+      - echo "✅ items-service deployed"
       - echo "Waiting for rollout to complete..."
-      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/items-app --timeout=120s
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/items-service --timeout=120s
 
   deploy:website-app:
     desc: Deploy website-app to Kubernetes
@@ -169,17 +169,17 @@ tasks:
   deploy:all:
     desc: Deploy all apps to Kubernetes
     cmds:
-      - task: deploy:items-app
+      - task: deploy:items-service
       - task: deploy:website-app
 
-  deploy:items-app:with-postgres:
-    desc: Deploy PostgreSQL and items-app together
+  deploy:items-service:with-postgres:
+    desc: Deploy PostgreSQL and items-service together
     cmds:
       - task: deploy:postgres
-      - echo "Waiting for PostgreSQL to be ready before deploying items-app..."
+      - echo "Waiting for PostgreSQL to be ready before deploying items-service..."
       - sleep 5
-      - task: deploy:items-app
-      - echo "✅ PostgreSQL and items-app deployed successfully!"
+      - task: deploy:items-service
+      - echo "✅ PostgreSQL and items-service deployed successfully!"
 
   deploy:cert-manager:
     desc: Deploy cert-manager
@@ -192,20 +192,20 @@ tasks:
       - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/cert-manager/cluster-issuer.yaml
 
   # Rollout tasks
-  rollout:restart:items-app:
-    desc: Restart items-app deployment
+  rollout:restart:items-service:
+    desc: Restart items-service deployment
     cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} rollout restart deployment/items-app
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout restart deployment/items-service
 
   rollout:restart:website-app:
     desc: Restart website-app deployment
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} rollout restart deployment/website-app
 
-  rollout:status:items-app:
-    desc: Check rollout status for items-app
+  rollout:status:items-service:
+    desc: Check rollout status for items-service
     cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/items-app
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/items-service
 
   rollout:status:website-app:
     desc: Check rollout status for website-app
@@ -226,8 +226,8 @@ tasks:
       - dig roussev.com A +short
 
   # Health check tasks
-  health:items-app:
-    desc: Check health of items-app (local)
+  health:items-service:
+    desc: Check health of items-service (local)
     cmds:
       - curl -s https://app.roussev.com/items/v1/health | jq
 
@@ -239,13 +239,13 @@ tasks:
   clean:docker:
     desc: Clean Docker images
     cmds:
-      - docker rmi items-app:local website-app:local || true
+      - docker rmi items-service:local website-app:local || true
 
   # Port forwarding tasks
-  port-forward:items-app:
-    desc: Port forward to items-app pod
+  port-forward:items-service:
+    desc: Port forward to items-service pod
     cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/items-app 8080:80
+      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/items-service 8080:80
 
   port-forward:website-app:
     desc: Port forward to website-app pod

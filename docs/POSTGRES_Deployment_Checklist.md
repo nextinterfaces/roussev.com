@@ -99,7 +99,7 @@ df -h
 ```
 
 
-### Connection refused from items-app
+### Connection refused from items-service
 ```bash
 # Verify service is accessible
 kubectl get svc postgres

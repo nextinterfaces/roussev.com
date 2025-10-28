@@ -1,23 +1,23 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: items-app
+  name: items-service
   namespace: default
   labels:
-    app: items-app
+    app: items-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: items-app
+      app: items-service
   template:
     metadata:
       labels:
-        app: items-app
+        app: items-service
     spec:
       containers:
-      - name: items-app
-        image: ghcr.io/nextinterfaces/items-app:latest
+      - name: items-service
+        image: ghcr.io/nextinterfaces/items-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -71,10 +71,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: items-app
+  name: items-service
   namespace: default
   labels:
-    app: items-app
+    app: items-service
 spec:
   type: ClusterIP
   ports:
@@ -83,13 +83,13 @@ spec:
     protocol: TCP
     name: http
   selector:
-    app: items-app
+    app: items-service
 
 ---
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: items-app
+  name: items-service
   namespace: default
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
@@ -100,7 +100,7 @@ spec:
   tls:
   - hosts:
     - app.roussev.com
-    secretName: items-app-tls
+    secretName: items-service-tls
   rules:
   - host: app.roussev.com
     http:
@@ -109,6 +109,6 @@ spec:
         pathType: ImplementationSpecific
         backend:
           service:
-            name: items-app
+            name: items-service
             port:
               number: 80

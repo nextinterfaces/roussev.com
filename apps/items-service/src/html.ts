@@ -23,7 +23,7 @@ export function getSwaggerHtml(appPrefix: string): string {
 </html>`;
 }
 
-export function getRootPageHtml(apiPrefix: string): string {
+export function getRootPageHtml(appPrefix: string, apiPrefix: string): string {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -46,11 +46,11 @@ export function getRootPageHtml(apiPrefix: string): string {
 
             <p>A simple REST API service for managing items, built with Bun and PostgreSQL.</p>
 
-            <p><a href="/docs" target="_blank">Swagger Docs</a></p>
+            <p><a href="${appPrefix}/docs" target="_blank">Swagger Docs</a></p>
 
             <p><strong>API Endpoints:</strong></p>
-            <p><a href="${apiPrefix}/health" target="_blank">${apiPrefix}/health</a> - Service and database health check</p>
-            <p><a href="${apiPrefix}/items" target="_blank">${apiPrefix}/items</a> - List all items</p>
+            <p><a href="${appPrefix}/${apiPrefix}/health" target="_blank">${apiPrefix}/health</a> - Service and database health check</p>
+            <p><a href="${appPrefix}/${apiPrefix}/items" target="_blank">${apiPrefix}/items</a> - List all items</p>
         </article>
     </div>
 </body>

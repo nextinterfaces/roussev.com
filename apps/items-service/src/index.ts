@@ -95,6 +95,7 @@ async function handle(req: Request): Promise<Response> {
     try {
       const body = (await req.json()) as Partial<Item>;
       if (!body?.name || typeof body.name !== "string") return json({ error: "name required" }, { status: 400 });
+        response = new Response(getRootPageHtml(APP_PREFIX, API_PREFIX), { headers: { "content-type": "text/html; charset=utf-8" } });
 
       const [item] = await sql<Item[]>`
         INSERT INTO items (name)

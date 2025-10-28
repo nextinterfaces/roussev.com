@@ -33,6 +33,9 @@ Thumbs.db
 Taskfile.local.yml
 .task/
 
+# Tilt
+.tiltbuild/
+
 K3S_TLS_setup.md
 commands.txt
 steps.mmd

@@ -1,0 +1,38 @@
+# k3d cluster configuration for local development
+apiVersion: k3d.io/v1alpha5
+kind: Simple
+metadata:
+  name: roussev-local
+servers: 1
+agents: 0
+image: rancher/k3s:v1.28.5-k3s1
+ports:
+  # Map host ports to cluster
+  - port: 8080:80
+    nodeFilters:
+      - loadbalancer
+  - port: 8443:443
+    nodeFilters:
+      - loadbalancer
+  - port: 5432:30432
+    nodeFilters:
+      - loadbalancer
+options:
+  k3d:
+    wait: true
+    timeout: "60s"
+    disableLoadbalancer: false
+  k3s:
+    extraArgs:
+      - arg: --disable=traefik
+        nodeFilters:
+          - server:*
+  kubeconfig:
+    updateDefaultKubeconfig: true
+    switchCurrentContext: true
+registries:
+  create:
+    name: k3d-registry.localhost
+    host: "0.0.0.0"
+    hostPort: "5555"
+

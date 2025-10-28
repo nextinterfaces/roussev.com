@@ -49,11 +49,11 @@ k8s_resource(
 # Items Service
 # ============================================================================
 
-# Build Docker image for items-service
+# Build Docker image for items-service (using dev Dockerfile with hot reload)
 docker_build(
     'items-service',
     context='./apps/items-service',
-    dockerfile='./apps/items-service/Dockerfile',
+    dockerfile='./apps/items-service/Dockerfile.dev',
     live_update=[
         sync('./apps/items-service/src', '/app/src'),
         sync('./apps/items-service/package.json', '/app/package.json'),
@@ -80,11 +80,11 @@ k8s_resource(
 # Website App
 # ============================================================================
 
-# Build Docker image for website-app
+# Build Docker image for website-app (using dev Dockerfile with hot reload)
 docker_build(
     'website-app',
     context='./apps/website-app',
-    dockerfile='./apps/website-app/Dockerfile',
+    dockerfile='./apps/website-app/Dockerfile.dev',
     live_update=[
         sync('./apps/website-app/src', '/app/src'),
         sync('./apps/website-app/public', '/app/public'),

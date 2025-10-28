@@ -1,0 +1,11 @@
+# syntax=docker/dockerfile:1
+# Development Dockerfile with hot reload enabled
+FROM oven/bun:1.1-alpine
+WORKDIR /app
+COPY package.json bun.lockb* ./
+RUN bun install --frozen-lockfile || bun install
+COPY . .
+ENV PORT=8080
+EXPOSE 8080
+CMD ["bun", "run", "dev"]
+

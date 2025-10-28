@@ -140,8 +140,6 @@ async function handle(req: Request): Promise<Response> {
   // if (!path.startsWith(API_PREFIX)) return notFound();
   path = path.slice(API_PREFIX.length) || "/";
 
-  if (path === "/test1" && req.method === "GET") return json({ status: "test1" });
-
   if (path === "/health" && req.method === "GET") {
     try {
       // Check database connection

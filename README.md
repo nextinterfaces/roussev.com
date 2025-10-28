@@ -17,9 +17,21 @@
 
 This project uses [Task](https://taskfile.dev/) to common development workflows, Run `task` to see all available tasks.
 
-## Quick Start
+## Local Development
 
-See [docs/QUICK_START.md](docs/QUICK_START.md)
+```bash
+task local:setup
+task local:start
+
+- Tilt UI: http://localhost:10350
+- PostgreSQL: localhost:5432
+- Items Service: http://localhost:8081
+- Website App: http://localhost:8082
+```
+
+## Production Deployment
+
+See [docs/QUICK_START.md](docs/QUICK_START.md) for deploying to Hetzner Cloud
 
 ## Next Steps
 

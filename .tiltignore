@@ -1,0 +1,61 @@
+# Tilt ignore file - files/directories to ignore for file watching
+
+# Git
+.git/
+.gitignore
+
+# Environment
+.env
+.env.local
+*.env
+
+# Node modules
+node_modules/
+**/node_modules/
+
+# Build artifacts
+dist/
+build/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Terraform
+infra/terraform/.terraform/
+infra/terraform/*.tfstate
+infra/terraform/*.tfstate.backup
+infra/terraform/*.tfvars
+infra/terraform/ssh_key.pem*
+infra/terraform/kubeconfig.yaml
+
+# Documentation
+*.md
+docs/
+
+# Scripts (except those needed for Tilt)
+scripts/
+
+# Task
+.task/
+Taskfile.yml
+Taskfile.local.yml
+
+# CI/CD
+.github/
+
+# Other k8s configs (we only use local/)
+infra/k8s/apps/
+infra/k8s/storage/
+infra/k8s/cert-manager/
+infra/k8s/letsencrypt-issuer.yaml
+infra/k8s/sample-app-deployment.yaml
+

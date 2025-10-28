@@ -12,6 +12,41 @@ tasks:
     cmds:
       - task --list
 
+  # Local k3d + Tilt development tasks
+  local:setup:
+    desc: Create k3d cluster for local development
+    cmds:
+      - ./scripts/k3d-setup.sh
+
+  local:start:
+    desc: Start Tilt for local development
+    cmds:
+      - tilt up
+
+  local:down:
+    desc: Stop Tilt (keeps cluster running)
+    cmds:
+      - tilt down
+
+  local:teardown:
+    desc: Delete k3d cluster
+    cmds:
+      - k3d cluster delete roussev-local
+
+  local:status:
+    desc: Check status of local k3d cluster
+    cmds:
+      - k3d cluster list
+      - echo ""
+      - kubectl get nodes
+      - echo ""
+      - kubectl get pods
+
+  local:logs:
+    desc: View Tilt logs
+    cmds:
+      - tilt logs
+
   # Development tasks
   dev:items-service:
     desc: Run items-service in development mode with hot reload

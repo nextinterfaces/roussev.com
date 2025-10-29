@@ -1,4 +1,15 @@
-// src/index.ts
+/**
+ *
+ * Environment Variables:
+ * - PORT                           - Server port (default: 8080)
+ * - DB_HOST, DB_PORT, DB_USER      - Database connection
+ * - DB_PASSWORD, DB_NAME
+ * - OTEL_ENABLED                   - Enable tracing (default: true)
+ * - OTEL_EXPORTER_OTLP_ENDPOINT    - OTLP endpoint (default: http://localhost:4318)
+ * - OTEL_SERVICE_NAME              - Service name (default: items-service)
+ * - OTEL_LOG_LEVEL                 - Log level (default: info)
+ */
+
 // Initialize OpenTelemetry first, before any other imports
 import { initTelemetry } from "./telemetry";
 initTelemetry();

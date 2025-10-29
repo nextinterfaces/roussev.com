@@ -109,71 +109,40 @@ curl -X POST http://localhost:8081/v1/items \
 - Cascading failures
 - Slow database queries (> 1s)
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
-### No Traces Appearing
+**No Traces Appearing:**
 
-1. **Check if OpenTelemetry is enabled:**
+1. Check OpenTelemetry is enabled:
    ```bash
    kubectl get deployment items-service -o yaml | grep OTEL_ENABLED
    ```
-   Should show `value: "true"`
 
-2. **Check items-service logs:**
-   Look for "📊 OpenTelemetry initialized" message
+2. Check items-service logs for "OpenTelemetry initialized"
 
-3. **Check Jaeger is running:**
+3. Verify Jaeger is running:
    ```bash
    kubectl get pods | grep jaeger
    ```
 
-4. **Check connectivity:**
+4. Test connectivity:
    ```bash
    kubectl exec -it <items-service-pod> -- curl http://jaeger:4318
    ```
 
-### Traces Missing Information
+**Missing Information:**
 
-1. **Check OTEL_LOG_LEVEL:**
-   Set to "debug" to see detailed logs:
-   ```yaml
-   - name: OTEL_LOG_LEVEL
-     value: "debug"
-   ```
+Set `OTEL_LOG_LEVEL=debug` for detailed logs
 
-2. **Check auto-instrumentation:**
-   Some libraries may not be auto-instrumented
-   May need manual instrumentation
+**Performance Impact:**
 
-### Performance Impact
+- ~1-5ms overhead per request
+- Minimal impact on production
 
-OpenTelemetry has minimal overhead:
-- ~1-5ms per request
-- Sampling can reduce overhead further
-- Can be disabled in production if needed
-
-## 📚 Additional Resources
+## Resources
 
 - [OpenTelemetry Documentation](https://opentelemetry.io/docs/)
 - [Jaeger Documentation](https://www.jaegertracing.io/docs/)
 - [OpenTelemetry JavaScript SDK](https://opentelemetry.io/docs/instrumentation/js/)
-- [Distributed Tracing Best Practices](https://opentelemetry.io/docs/concepts/observability-primer/)
-
-## 🎯 Next Steps
-
-1. **Run the test script** to validate your setup:
-   ```bash
-   ./scripts/test-otel.sh
-   ```
-
-2. **Explore Jaeger UI** at http://localhost:16686
-
-3. **Make some requests** and watch the traces appear
-
-4. **Try the use cases** above to get familiar with the UI
-
-5. **Consider adding custom spans** for important business operations
-
-6. **Set up alerts** based on trace data (requires additional setup)
 
 

@@ -44,7 +44,7 @@ export function getRootPageHtml(): string {
         <article class="profile-content">
             <h1>Items Service</h1>
 
-            <p>A simple REST API service for managing items, built with Bun and PostgreSQL.</p>
+            <p>A simple REST API service for managing items, built with Bun and PostgreSQL, Jaeger and OpenTelemetry.</p>
 
             <p><a href="/items/docs" target="_blank">Swagger Docs</a></p>
 

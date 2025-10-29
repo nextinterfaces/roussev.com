@@ -166,16 +166,3 @@ The items-service adds custom attributes like:
 ### Production Storage Options
 
 - Elasticsearch, Cassandra or Badger
-
----
-
-## Summary
-
-**Deployment**: `task deploy:jaeger`
-
-**Access**: https://app.roussev.com/jaeger
-
-**Storage**: In-memory (10,000 traces max)
-
-**Integration**: Items-service automatically sends traces via OpenTelemetry
-

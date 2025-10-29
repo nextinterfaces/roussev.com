@@ -228,22 +228,7 @@ tasks:
 
   deploy:jaeger:
     desc: Deploy Jaeger for distributed tracing
-    dotenv: ['.env']
     cmds:
-      - |
-        echo "Creating Jaeger basic auth secret..."
-        if [ -z "$JAEGER_AUTH_HTPASSWD" ]; then
-          echo "Error: JAEGER_AUTH_HTPASSWD not set in .env file"
-          echo ""
-          echo "Generate with: htpasswd -nb admin yourpassword"
-          echo "Then add to .env: JAEGER_AUTH_HTPASSWD='admin:\$apr1\$...'"
-          exit 1
-        fi
-        # Delete existing secret if it exists
-        kubectl --kubeconfig={{.KUBECONFIG}} delete secret jaeger-basic-auth -n default --ignore-not-found=true
-        # Create new secret
-        printf '%s' "$JAEGER_AUTH_HTPASSWD" | kubectl --kubeconfig={{.KUBECONFIG}} create secret generic jaeger-basic-auth --from-file=auth=/dev/stdin -n default
-        echo "Secret created"
       - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/observability/jaeger-deployment.yaml
       - echo "Jaeger deployed"
       - echo "Waiting for rollout to complete..."

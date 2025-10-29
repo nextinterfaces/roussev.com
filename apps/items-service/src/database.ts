@@ -9,8 +9,6 @@ import type { DatabaseConfig } from "./config";
 import type { Item, CreateItemDto } from "./models";
 
 let sql: ReturnType<typeof postgres> | null = null;
-
-// TODO use ORM framework such as Prisma instead of direct SQL as this is prone to SQL injection
 /**
  * Initialize database connection
  */

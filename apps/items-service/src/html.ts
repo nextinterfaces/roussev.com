@@ -42,7 +42,7 @@ export function getRootPageHtml(): string {
         <article class="profile-content">
             <h1>Items Service</h1>
 
-            <p>A simple REST API service for managing items, built with Bun and PostgreSQL, Jaeger and OpenTelemetry.</p>
+            <p>A simple REST API service for managing items, built with Bun, Postgre, Jaeger and OpenTelemetry.</p>
 
             <p><a href="/jaeger" target="_blank">Jaeger OTel Tracing</a></p>
 

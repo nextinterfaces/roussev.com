@@ -46,6 +46,24 @@ k8s_resource(
 )
 
 # ============================================================================
+# Jaeger (OpenTelemetry Collector)
+# ============================================================================
+
+# Deploy Jaeger for distributed tracing
+k8s_yaml('infra/k8s/local/jaeger-local.yaml')
+
+# Configure Jaeger resource
+k8s_resource(
+    'jaeger',
+    port_forwards='16686:16686',
+    labels=['observability'],
+    resource_deps=[],
+    links=[
+        link('http://localhost:16686', 'Jaeger UI'),
+    ]
+)
+
+# ============================================================================
 # Items Service
 # ============================================================================
 
@@ -69,7 +87,7 @@ k8s_resource(
     'items-service',
     port_forwards='8081:8080',
     labels=['apps'],
-    resource_deps=['postgres'],
+    resource_deps=['postgres', 'jaeger'],
     links=[
         link('http://localhost:8081/v1/health', 'Health Check'),
         link('http://localhost:8081/docs', 'API Docs'),
@@ -125,6 +143,7 @@ Services will be available at:
      - API Docs:      http://localhost:8081/docs
   🌐 Website App:     http://localhost:8082
      - Health:        http://localhost:8082/health
+  📊 Jaeger UI:       http://localhost:16686
 
 Press 'space' to open Tilt UI in your browser
 Press 'q' to quit

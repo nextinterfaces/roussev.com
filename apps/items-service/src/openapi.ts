@@ -38,17 +38,6 @@ export const openapi = {
         },
       },
     },
-    "/test1": {
-      get: {
-        summary: "Test endpoint",
-        responses: {
-          "200": {
-            description: "Test response",
-            content: { "application/json": { schema: { type: "object", properties: { status: { type: "string" } } } } },
-          },
-        },
-      },
-    },
   },
   components: {
     schemas: { Item: { type: "object", properties: { id: { type: "integer" }, name: { type: "string" } }, required: ["id", "name"] } },

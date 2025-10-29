@@ -1,7 +1,12 @@
 // src/index.ts
+// Initialize OpenTelemetry first, before any other imports
+import { initTelemetry } from "./telemetry";
+initTelemetry();
+
 import postgres from "postgres";
 import { getSwaggerHtml, getRootPageHtml } from "./html";
 import { openapi } from "./openapi";
+import { trace, context, SpanStatusCode } from "@opentelemetry/api";
 
 type Item = { id: number; name: string };
 
@@ -31,19 +36,27 @@ const sql = postgres({
 
 // Initialize database schema
 async function initDatabase() {
-  try {
-    await sql`
-      CREATE TABLE IF NOT EXISTS items (
-        id SERIAL PRIMARY KEY,
-        name VARCHAR(255) NOT NULL,
-        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `;
-    console.log("✅ Database initialized successfully");
-  } catch (error) {
-    console.error("❌ Failed to initialize database:", error);
-    throw error;
-  }
+  const tracer = trace.getTracer("items-service");
+  return await tracer.startActiveSpan("initDatabase", async (span) => {
+    try {
+      await sql`
+        CREATE TABLE IF NOT EXISTS items (
+          id SERIAL PRIMARY KEY,
+          name VARCHAR(255) NOT NULL,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+      `;
+      console.log("✅ Database initialized successfully");
+      span.setStatus({ code: SpanStatusCode.OK });
+    } catch (error) {
+      console.error("❌ Failed to initialize database:", error);
+      span.recordException(error as Error);
+      span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+      throw error;
+    } finally {
+      span.end();
+    }
+  });
 }
 
 function json(data: unknown, init: ResponseInit = {}) {
@@ -58,63 +71,109 @@ function notFound() {
 }
 
 async function handle(req: Request): Promise<Response> {
+  const tracer = trace.getTracer("items-service");
   const url = new URL(req.url);
   let path = url.pathname;
 
-  // Root page
-  if (path === "/" && req.method === "GET") return new Response(getRootPageHtml(API_PREFIX), { headers: { "content-type": "text/html; charset=utf-8" } });
-
-  // Swagger UI & OpenAPI JSON
-  if (path === "/docs" && req.method === "GET") return new Response(getSwaggerHtml(APP_PREFIX), { headers: { "content-type": "text/html; charset=utf-8" } });
-  if (path === `${API_PREFIX}/openapi.json` && req.method === "GET") return json(openapi);
-
-  // if (!path.startsWith(API_PREFIX)) return notFound();
-  path = path.slice(API_PREFIX.length) || "/";
-
-  if (path === "/health" && req.method === "GET") {
+  // Create a span for the HTTP request
+  return await tracer.startActiveSpan(`${req.method} ${path}`, async (span) => {
     try {
-      // Check database connection
-      await sql`SELECT 1`;
-      return json({ status: "ok", commit: COMMIT_SHA, database: "connected" });
-    } catch (error) {
-      return json({ status: "degraded", commit: COMMIT_SHA, database: "disconnected", error: String(error) }, { status: 503 });
-    }
-  }
+      span.setAttributes({
+        "http.method": req.method,
+        "http.url": url.toString(),
+        "http.target": path,
+        "http.scheme": url.protocol.replace(":", ""),
+        "http.host": url.host,
+      });
 
-  if (path === "/items" && req.method === "GET") {
-    try {
-      const items = await sql<Item[]>`SELECT id, name FROM items ORDER BY id`;
-      return json({ items });
-    } catch (error) {
-      console.error("Error fetching items:", error);
-      return json({ error: "Failed to fetch items" }, { status: 500 });
-    }
-  }
+      let response: Response;
+
+      // Root page
+      if (path === "/" && req.method === "GET") {
         response = new Response(getRootPageHtml(), { headers: { "content-type": "text/html; charset=utf-8" } });
-
-  if (path === "/items" && req.method === "POST") {
-    try {
-      const body = (await req.json()) as Partial<Item>;
-      if (!body?.name || typeof body.name !== "string") return json({ error: "name required" }, { status: 400 });
-        response = new Response(getRootPageHtml(APP_PREFIX, API_PREFIX), { headers: { "content-type": "text/html; charset=utf-8" } });
-
-      const [item] = await sql<Item[]>`
-        INSERT INTO items (name)
-        VALUES (${body.name})
-        RETURNING id, name
-      `;
-
-      return json(item, { status: 201 });
-    } catch (error) {
-      console.error("Error creating item:", error);
-      if (error instanceof SyntaxError) {
-        return json({ error: "invalid json" }, { status: 400 });
       }
-      return json({ error: "Failed to create item" }, { status: 500 });
-    }
-  }
+      // Swagger UI & OpenAPI JSON
+      else if (path === "/docs" && req.method === "GET") {
+        response = new Response(getSwaggerHtml(APP_PREFIX), { headers: { "content-type": "text/html; charset=utf-8" } });
+      }
+      else if (path === `${API_PREFIX}/openapi.json` && req.method === "GET") {
+        response = json(openapi);
+      }
+      else {
+        // if (!path.startsWith(API_PREFIX)) return notFound();
+        path = path.slice(API_PREFIX.length) || "/";
 
-  return notFound();
+        if (path === "/health" && req.method === "GET") {
+          try {
+            // Check database connection
+            await sql`SELECT 1`;
+            response = json({ status: "ok", commit: COMMIT_SHA, database: "connected" });
+          } catch (error) {
+            span.recordException(error as Error);
+            span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+            response = json({ status: "degraded", commit: COMMIT_SHA, database: "disconnected", error: String(error) }, { status: 503 });
+          }
+        }
+        else if (path === "/items" && req.method === "GET") {
+          try {
+            const items = await sql<Item[]>`SELECT id, name FROM items ORDER BY id`;
+            span.setAttribute("items.count", items.length);
+            response = json({ items });
+          } catch (error) {
+            console.error("Error fetching items:", error);
+            span.recordException(error as Error);
+            span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+            response = json({ error: "Failed to fetch items" }, { status: 500 });
+          }
+        }
+        else if (path === "/items" && req.method === "POST") {
+          try {
+            const body = (await req.json()) as Partial<Item>;
+            if (!body?.name || typeof body.name !== "string") {
+              response = json({ error: "name required" }, { status: 400 });
+            } else {
+              const [item] = await sql<Item[]>`
+                INSERT INTO items (name)
+                VALUES (${body.name})
+                RETURNING id, name
+              `;
+              span.setAttribute("item.id", item.id);
+              span.setAttribute("item.name", item.name);
+              response = json(item, { status: 201 });
+            }
+          } catch (error) {
+            console.error("Error creating item:", error);
+            span.recordException(error as Error);
+            span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+            if (error instanceof SyntaxError) {
+              response = json({ error: "invalid json" }, { status: 400 });
+            } else {
+              response = json({ error: "Failed to create item" }, { status: 500 });
+            }
+          }
+        }
+        else {
+          response = notFound();
+        }
+      }
+
+      // Set response status on span
+      span.setAttribute("http.status_code", response.status);
+      if (response.status >= 400) {
+        span.setStatus({ code: SpanStatusCode.ERROR, message: `HTTP ${response.status}` });
+      } else {
+        span.setStatus({ code: SpanStatusCode.OK });
+      }
+
+      return response;
+    } catch (error) {
+      span.recordException(error as Error);
+      span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
+      throw error;
+    } finally {
+      span.end();
+    }
+  });
 }
 
 // Initialize database and start server

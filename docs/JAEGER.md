@@ -56,7 +56,8 @@ curl -X POST https://app.roussev.com/items/v1/items \
 
 **Components:**
 - **Items Service**: Sends traces via OpenTelemetry Protocol (OTLP)
-- **Jaeger Collector**: Receives traces on port 4318 (HTTP) and 4317 (gRPC)
+- **Jaeger v2**: All-in-one binary that includes collector, query, and UI
+- **OTLP Receivers**: Receives traces on port 4318 (HTTP) and 4317 (gRPC)
 - **Jaeger UI**: Web interface for viewing and analyzing traces
 - **Storage**: In-memory (configurable to use Elasticsearch, Cassandra, etc.)
 
@@ -69,28 +70,26 @@ curl -X POST https://app.roussev.com/items/v1/items \
 Location: `infra/k8s/observability/jaeger-deployment.yaml`
 
 **Key settings:**
-- **Image**: `jaegertracing/all-in-one:1.52`
-- **Storage**: In-memory (stores up to 10,000 traces)
+- **Image**: `jaegertracing/jaeger:2.11.0` (Jaeger v2)
+- **Storage**: In-memory (default for all-in-one mode)
 - **Resources**: 512Mi-1Gi memory, 200m-500m CPU
-- **Base Path**: `/jaeger` (configured via `QUERY_BASE_PATH` env var)
+- **Base Path**: `/jaeger` (configured via command-line args)
 
 **Ports:**
 - `16686`: Jaeger UI
 - `4318`: OTLP HTTP collector
 - `4317`: OTLP gRPC collector
 
-**Environment Variables:**
+**Configuration (Jaeger v2):**
+Jaeger v2 uses command-line arguments instead of environment variables:
 ```yaml
-env:
-  - name: COLLECTOR_OTLP_ENABLED
-    value: "true"
-  - name: QUERY_BASE_PATH
-    value: "/jaeger"
-  - name: SPAN_STORAGE_TYPE
-    value: "memory"
-  - name: MEMORY_MAX_TRACES
-    value: "10000"
+args:
+  - "--set=receivers.otlp.protocols.grpc.endpoint=0.0.0.0:4317"
+  - "--set=receivers.otlp.protocols.http.endpoint=0.0.0.0:4318"
+  - "--set=extensions.jaeger_query.base_path=/jaeger"
 ```
+
+**Note:** Jaeger v2 uses the OpenTelemetry Collector configuration format. OTLP is enabled by default in all-in-one mode.
 
 ### Items Service Configuration
 

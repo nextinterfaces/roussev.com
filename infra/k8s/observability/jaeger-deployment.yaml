@@ -90,10 +90,6 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
-    # Basic auth to protect Jaeger UI in production
-    nginx.ingress.kubernetes.io/auth-type: basic
-    nginx.ingress.kubernetes.io/auth-secret: jaeger-basic-auth
-    nginx.ingress.kubernetes.io/auth-realm: 'Authentication Required - Jaeger UI'
 spec:
   ingressClassName: nginx
   tls:

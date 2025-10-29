@@ -138,11 +138,3 @@ Set `OTEL_LOG_LEVEL=debug` for detailed logs
 
 - ~1-5ms overhead per request
 - Minimal impact on production
-
-## Resources
-
-- [OpenTelemetry Documentation](https://opentelemetry.io/docs/)
-- [Jaeger Documentation](https://www.jaegertracing.io/docs/)
-- [OpenTelemetry JavaScript SDK](https://opentelemetry.io/docs/instrumentation/js/)
-
-

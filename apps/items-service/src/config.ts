@@ -21,12 +21,20 @@ export interface ServerConfig {
   commitSha: string;
 }
 
+export interface LoggingConfig {
+  level: string;
+  pretty: boolean;
+}
+
 export interface Config {
   server: ServerConfig;
   database: DatabaseConfig;
+  logging: LoggingConfig;
 }
 
 export function loadConfig(): Config {
+  const nodeEnv = process.env.NODE_ENV || "development";
+
   return {
     server: {
       port: Number(process.env.PORT || 8080),
@@ -43,6 +51,10 @@ export function loadConfig(): Config {
       max: 10,
       idleTimeout: 20,
       connectTimeout: 10,
+    },
+    logging: {
+      level: process.env.LOG_LEVEL || "info",
+      pretty: nodeEnv === "development" || process.env.LOG_PRETTY === "true",
     },
   };
 }

@@ -20,10 +20,25 @@ import { loadConfig } from "./config.js";
 import { initDatabase, initSchema, ItemsRepository } from "./database.js";
 import { HealthController, ItemsController } from "./controllers.js";
 import { Router } from "./router.js";
+import { logger, logStartup, logShutdown, logError } from "./logger.js";
 
 async function main() {
   try {
     const config = loadConfig();
+
+    // Log startup with configuration (excluding sensitive data)
+    logStartup({
+      port: config.server.port,
+      apiPrefix: config.server.apiPrefix,
+      appPrefix: config.server.appPrefix,
+      commitSha: config.server.commitSha,
+      logLevel: config.logging.level,
+      database: {
+        host: config.database.host,
+        port: config.database.port,
+        database: config.database.database,
+      },
+    });
 
     initDatabase(config.database);
     await initSchema();
@@ -38,13 +53,32 @@ async function main() {
       fetch: (req) => router.handle(req),
     });
 
-    console.log(`Items service listening on http://localhost:${server.port}`);
-    console.log(`Swagger UI: http://localhost:${server.port}/docs`);
-    console.log(`Database: ${config.database.host}:${config.database.port}/${config.database.database}`);
+    logger.info(
+      {
+        port: server.port,
+        urls: {
+          api: `http://localhost:${server.port}${config.server.apiPrefix}`,
+          docs: `http://localhost:${server.port}/docs`,
+          database: `${config.database.host}:${config.database.port}/${config.database.database}`,
+        },
+      },
+      "Items service started successfully"
+    );
   } catch (error) {
-    console.error("Failed to start server:", error);
+    logError(error, "Failed to start server");
     process.exit(1);
   }
 }
+
+// Handle graceful shutdown
+process.on("SIGTERM", () => {
+  logShutdown();
+  process.exit(0);
+});
+
+process.on("SIGINT", () => {
+  logShutdown();
+  process.exit(0);
+});
 
 await main();

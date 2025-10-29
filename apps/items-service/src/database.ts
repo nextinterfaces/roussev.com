@@ -2,6 +2,7 @@ import postgres from "postgres";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
 import type { DatabaseConfig } from "./config.js";
 import type { Item, CreateItemDto } from "./models.js";
+import { logger, logError } from "./logger.js";
 
 let sql: ReturnType<typeof postgres> | null = null;
 
@@ -9,6 +10,16 @@ export function initDatabase(config: DatabaseConfig): ReturnType<typeof postgres
   if (sql) {
     return sql;
   }
+
+  logger.info(
+    {
+      host: config.host,
+      port: config.port,
+      database: config.database,
+      max: config.max,
+    },
+    "Initializing database connection"
+  );
 
   sql = postgres({
     host: config.host,
@@ -35,6 +46,7 @@ export async function initSchema(): Promise<void> {
   const tracer = trace.getTracer("items-service");
   return await tracer.startActiveSpan("initDatabase", async (span) => {
     try {
+      logger.debug("Initializing database schema");
       const db = getDatabase();
       await db`
         CREATE TABLE IF NOT EXISTS items (
@@ -43,10 +55,10 @@ export async function initSchema(): Promise<void> {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
       `;
-      console.log("Database initialized successfully");
+      logger.info("Database schema initialized successfully");
       span.setStatus({ code: SpanStatusCode.OK });
     } catch (error) {
-      console.error("Failed to initialize database:", error);
+      logError(error, "Failed to initialize database schema");
       span.recordException(error as Error);
       span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
       throw error;

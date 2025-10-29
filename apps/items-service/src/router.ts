@@ -9,6 +9,7 @@ import { getSwaggerHtml, getRootPageHtml } from "./html.js";
 import { openapi } from "./openapi.js";
 import { json, notFound, html } from "./http-utils.js";
 import type { ServerConfig } from "./config.js";
+import { logRequest, logResponse, logError } from "./logger.js";
 
 type RouteHandler = (req: Request) => Promise<Response> | Response;
 
@@ -81,6 +82,7 @@ export class Router {
     const tracer = trace.getTracer("items-service");
     const url = new URL(req.url);
     const path = url.pathname;
+    const startTime = Date.now();
 
     return await tracer.startActiveSpan(`${req.method} ${path}`, async (span) => {
       try {
@@ -92,20 +94,28 @@ export class Router {
           "http.host": url.host,
         });
 
+        logRequest(req);
+
         // Find and execute matching route
         const route = this.findRoute(req.method, path);
         const response = route ? await route.handler(req) : notFound();
 
+        const duration = Date.now() - startTime;
         // Set response status on span
         span.setAttribute("http.status_code", response.status);
+        span.setAttribute("http.duration_ms", duration);
+
         if (response.status >= 400) {
           span.setStatus({ code: SpanStatusCode.ERROR, message: `HTTP ${response.status}` });
         } else {
           span.setStatus({ code: SpanStatusCode.OK });
         }
 
+        logResponse(req, response, duration);
+
         return response;
       } catch (error) {
+        logError(error, "Request handler error");
         span.recordException(error as Error);
         span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
         throw error;

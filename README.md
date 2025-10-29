@@ -7,6 +7,7 @@
 - **Sample REST Service** exposed publicly with HTTPS
 - **Terraform** for infrastructure as code
 - **Let's Encrypt SSL** certificates with cert-manager
+- **Distributed Tracing** with Jaeger and OpenTelemetry
 
 ## Prerequisites
 

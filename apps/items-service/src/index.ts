@@ -90,6 +90,7 @@ async function handle(req: Request): Promise<Response> {
       return json({ error: "Failed to fetch items" }, { status: 500 });
     }
   }
+        response = new Response(getRootPageHtml(), { headers: { "content-type": "text/html; charset=utf-8" } });
 
   if (path === "/items" && req.method === "POST") {
     try {

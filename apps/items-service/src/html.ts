@@ -35,16 +35,16 @@ export function getRootPageHtml(): string {
 </head>
 <body>
     <div class="profile-container">
-        <!-- Profile Header -->
         <div class="profile-header">
             <div class="profile-path">items-service/README.md</div>
         </div>
 
-        <!-- Profile Content -->
         <article class="profile-content">
             <h1>Items Service</h1>
 
             <p>A simple REST API service for managing items, built with Bun and PostgreSQL, Jaeger and OpenTelemetry.</p>
+
+            <p><a href="/jaeger" target="_blank">Jaeger OTel Tracing</a></p>
 
             <p><a href="/items/docs" target="_blank">Swagger Docs</a></p>
 

@@ -4,11 +4,11 @@
  */
 
 import { trace, SpanStatusCode } from "@opentelemetry/api";
-import { HealthController, ItemsController } from "./controllers";
-import { getSwaggerHtml, getRootPageHtml } from "./html";
-import { openapi } from "./openapi";
-import { json, notFound, html } from "./http-utils";
-import type { ServerConfig } from "./config";
+import { HealthController, ItemsController } from "./controllers.js";
+import { getSwaggerHtml, getRootPageHtml } from "./html.js";
+import { openapi } from "./openapi.js";
+import { json, notFound, html } from "./http-utils.js";
+import type { ServerConfig } from "./config.js";
 
 /**
  * Route handler type

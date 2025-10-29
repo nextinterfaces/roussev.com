@@ -4,9 +4,9 @@
  */
 
 import { trace, SpanStatusCode } from "@opentelemetry/api";
-import { ItemsRepository } from "./database";
-import type { CreateItemDto, HealthResponse, ItemsListResponse } from "./models";
-import { json, badRequest, internalServerError, serviceUnavailable } from "./http-utils";
+import { ItemsRepository } from "./database.js";
+import type { CreateItemDto, HealthResponse, ItemsListResponse } from "./models.js";
+import { json, badRequest, internalServerError, serviceUnavailable } from "./http-utils.js";
 
 /**
  * Health check controller

@@ -1,12 +1,7 @@
-/**
- * Database module
- * Handles database connection, initialization, and data access
- */
-
 import postgres from "postgres";
 import { trace, SpanStatusCode } from "@opentelemetry/api";
-import type { DatabaseConfig } from "./config";
-import type { Item, CreateItemDto } from "./models";
+import type { DatabaseConfig } from "./config.js";
+import type { Item, CreateItemDto } from "./models.js";
 
 let sql: ReturnType<typeof postgres> | null = null;
 /**
@@ -73,7 +68,7 @@ export async function initSchema(): Promise<void> {
  * Repository for items data access
  */
 export class ItemsRepository {
-  private db: ReturnType<typeof postgres>;
+  private readonly db: ReturnType<typeof postgres>;
 
   constructor() {
     this.db = getDatabase();

@@ -15,14 +15,14 @@
  */
 
 // Initialize OpenTelemetry first, before any other imports
-import { initTelemetry } from "./telemetry";
+import { initTelemetry } from "./telemetry.js";
 initTelemetry();
 
 // Import application modules
-import { loadConfig } from "./config";
-import { initDatabase, initSchema, ItemsRepository } from "./database";
-import { HealthController, ItemsController } from "./controllers";
-import { Router } from "./router";
+import { loadConfig } from "./config.js";
+import { initDatabase, initSchema, ItemsRepository } from "./database.js";
+import { HealthController, ItemsController } from "./controllers.js";
+import { Router } from "./router.js";
 
 /**
  * Bootstrap and start the application

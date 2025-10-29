@@ -1,4 +1,4 @@
-// telemetry.ts - OpenTelemetry configuration
+// OpenTelemetry configuration
 import { NodeSDK } from "@opentelemetry/sdk-node";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
@@ -7,13 +7,12 @@ import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from "@opentelemetry/semantic
 import { diag, DiagConsoleLogger, DiagLogLevel } from "@opentelemetry/api";
 
 // Configuration from environment variables
-const OTEL_ENABLED = true; //process.env.OTEL_ENABLED !== "false"; // Default to true
+const OTEL_ENABLED = process.env.OTEL_ENABLED !== "false"; // Default to true
 const OTEL_EXPORTER_OTLP_ENDPOINT = process.env.OTEL_EXPORTER_OTLP_ENDPOINT || "http://localhost:4318";
 const OTEL_SERVICE_NAME = process.env.OTEL_SERVICE_NAME || "items-service";
 const OTEL_SERVICE_VERSION = process.env.OTEL_SERVICE_VERSION || "1.0.0";
 const OTEL_LOG_LEVEL = process.env.OTEL_LOG_LEVEL || "info";
 
-// Enable OpenTelemetry diagnostic logging for debugging
 if (OTEL_LOG_LEVEL === "debug") {
   diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.DEBUG);
 } else if (OTEL_LOG_LEVEL === "verbose") {
@@ -24,7 +23,7 @@ let sdk: NodeSDK | null = null;
 
 export function initTelemetry() {
   if (!OTEL_ENABLED) {
-    console.log("📊 OpenTelemetry is disabled");
+    console.log("OpenTelemetry is disabled");
     return;
   }
 
@@ -41,7 +40,6 @@ export function initTelemetry() {
       [ATTR_SERVICE_VERSION]: OTEL_SERVICE_VERSION,
     });
 
-    // Initialize the SDK
     sdk = new NodeSDK({
       resource,
       traceExporter,
@@ -63,12 +61,11 @@ export function initTelemetry() {
       ],
     });
 
-    // Start the SDK
     sdk.start();
 
-    console.log(`📊 OpenTelemetry initialized`);
-    console.log(`   Service: ${OTEL_SERVICE_NAME} v${OTEL_SERVICE_VERSION}`);
-    console.log(`   Endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}`);
+    console.log(`OpenTelemetry initialized`);
+    console.log(`Service: ${OTEL_SERVICE_NAME} v${OTEL_SERVICE_VERSION}`);
+    console.log(`Endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}`);
 
     // Handle graceful shutdown
     process.on("SIGTERM", async () => {
@@ -81,7 +78,7 @@ export function initTelemetry() {
       process.exit(0);
     });
   } catch (error) {
-    console.error("❌ Failed to initialize OpenTelemetry:", error);
+    console.error("Failed to initialize OpenTelemetry:", error);
   }
 }
 
@@ -89,9 +86,9 @@ export async function shutdownTelemetry() {
   if (sdk) {
     try {
       await sdk.shutdown();
-      console.log("📊 OpenTelemetry shut down successfully");
+      console.log("OpenTelemetry shut down successfully");
     } catch (error) {
-      console.error("❌ Error shutting down OpenTelemetry:", error);
+      console.error("Error shutting down OpenTelemetry:", error);
     }
   }
 }

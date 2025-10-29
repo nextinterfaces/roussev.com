@@ -4,9 +4,7 @@ import type { DatabaseConfig } from "./config.js";
 import type { Item, CreateItemDto } from "./models.js";
 
 let sql: ReturnType<typeof postgres> | null = null;
-/**
- * Initialize database connection
- */
+
 export function initDatabase(config: DatabaseConfig): ReturnType<typeof postgres> {
   if (sql) {
     return sql;
@@ -26,9 +24,6 @@ export function initDatabase(config: DatabaseConfig): ReturnType<typeof postgres
   return sql;
 }
 
-/**
- * Get the database connection
- */
 export function getDatabase(): ReturnType<typeof postgres> {
   if (!sql) {
     throw new Error("Database not initialized. Call initDatabase first.");
@@ -36,9 +31,6 @@ export function getDatabase(): ReturnType<typeof postgres> {
   return sql;
 }
 
-/**
- * Initialize database schema
- */
 export async function initSchema(): Promise<void> {
   const tracer = trace.getTracer("items-service");
   return await tracer.startActiveSpan("initDatabase", async (span) => {
@@ -51,10 +43,10 @@ export async function initSchema(): Promise<void> {
           created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
       `;
-      console.log("✅ Database initialized successfully");
+      console.log("Database initialized successfully");
       span.setStatus({ code: SpanStatusCode.OK });
     } catch (error) {
-      console.error("❌ Failed to initialize database:", error);
+      console.error("Failed to initialize database:", error);
       span.recordException(error as Error);
       span.setStatus({ code: SpanStatusCode.ERROR, message: String(error) });
       throw error;
@@ -64,9 +56,6 @@ export async function initSchema(): Promise<void> {
   });
 }
 
-/**
- * Repository for items data access
- */
 export class ItemsRepository {
   private readonly db: ReturnType<typeof postgres>;
 
@@ -74,9 +63,6 @@ export class ItemsRepository {
     this.db = getDatabase();
   }
 
-  /**
-   * Get all items
-   */
   async findAll(): Promise<Item[]> {
     return await this.db<Item[]>`
       SELECT id, name 
@@ -85,9 +71,6 @@ export class ItemsRepository {
     `;
   }
 
-  /**
-   * Create a new item
-   */
   async create(dto: CreateItemDto): Promise<Item> {
     const [item] = await this.db<Item[]>`
       INSERT INTO items (name)
@@ -97,9 +80,6 @@ export class ItemsRepository {
     return item;
   }
 
-  /**
-   * Check database connection health
-   */
   async healthCheck(): Promise<boolean> {
     try {
       await this.db`SELECT 1`;

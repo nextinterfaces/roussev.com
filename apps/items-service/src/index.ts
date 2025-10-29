@@ -13,54 +13,38 @@
  * - OTEL_SERVICE_NAME              - Service name (default: items-service)
  * - OTEL_LOG_LEVEL                 - Log level (default: info)
  */
-
-// Initialize OpenTelemetry first, before any other imports
 import { initTelemetry } from "./telemetry.js";
 initTelemetry();
 
-// Import application modules
 import { loadConfig } from "./config.js";
 import { initDatabase, initSchema, ItemsRepository } from "./database.js";
 import { HealthController, ItemsController } from "./controllers.js";
 import { Router } from "./router.js";
 
-/**
- * Bootstrap and start the application
- */
 async function main() {
   try {
-    // Load configuration
     const config = loadConfig();
 
-    // Initialize database connection
     initDatabase(config.database);
     await initSchema();
 
-    // Initialize repositories
     const itemsRepository = new ItemsRepository();
-
-    // Initialize controllers
     const healthController = new HealthController(itemsRepository, config.server.commitSha);
     const itemsController = new ItemsController(itemsRepository);
-
-    // Initialize router
     const router = new Router(config.server, healthController, itemsController);
 
-    // Start HTTP server
     const server = Bun.serve({
       port: config.server.port,
       fetch: (req) => router.handle(req),
     });
 
-    // Log startup information
-    console.log(`✅ Items service listening on http://localhost:${server.port}`);
-    console.log(`📚 Swagger UI: http://localhost:${server.port}/docs`);
-    console.log(`🗄️  Database: ${config.database.host}:${config.database.port}/${config.database.database}`);
+    console.log(`Items service listening on http://localhost:${server.port}`);
+    console.log(`Swagger UI: http://localhost:${server.port}/docs`);
+    console.log(`Database: ${config.database.host}:${config.database.port}/${config.database.database}`);
   } catch (error) {
-    console.error("❌ Failed to start server:", error);
+    console.error("Failed to start server:", error);
     process.exit(1);
   }
 }
 
-// Start the application
 await main();

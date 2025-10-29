@@ -8,9 +8,6 @@ import { ItemsRepository } from "./database.js";
 import type { CreateItemDto, HealthResponse, ItemsListResponse } from "./models.js";
 import { json, badRequest, internalServerError, serviceUnavailable } from "./http-utils.js";
 
-/**
- * Health check controller
- */
 export class HealthController {
   constructor(
     private repository: ItemsRepository,
@@ -58,15 +55,9 @@ export class HealthController {
   }
 }
 
-/**
- * Items controller
- */
 export class ItemsController {
   constructor(private repository: ItemsRepository) {}
 
-  /**
-   * List all items
-   */
   async list(): Promise<Response> {
     const tracer = trace.getTracer("items-service");
     return await tracer.startActiveSpan("listItems", async (span) => {
@@ -88,14 +79,10 @@ export class ItemsController {
     });
   }
 
-  /**
-   * Create a new item
-   */
   async create(req: Request): Promise<Response> {
     const tracer = trace.getTracer("items-service");
     return await tracer.startActiveSpan("createItem", async (span) => {
       try {
-        // Parse and validate request body
         let body: Partial<CreateItemDto>;
         try {
           body = (await req.json()) as Partial<CreateItemDto>;
@@ -106,14 +93,12 @@ export class ItemsController {
           return badRequest("invalid json");
         }
 
-        // Validate required fields
         if (!body?.name || typeof body.name !== "string") {
           span.setStatus({ code: SpanStatusCode.ERROR, message: "Name required" });
           span.end();
           return badRequest("name required");
         }
 
-        // Create item
         const item = await this.repository.create({ name: body.name });
         
         span.setAttribute("item.id", item.id);

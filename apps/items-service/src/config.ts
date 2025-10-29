@@ -26,9 +26,6 @@ export interface Config {
   database: DatabaseConfig;
 }
 
-/**
- * Load and validate configuration from environment variables
- */
 export function loadConfig(): Config {
   return {
     server: {

@@ -10,23 +10,14 @@ import { openapi } from "./openapi.js";
 import { json, notFound, html } from "./http-utils.js";
 import type { ServerConfig } from "./config.js";
 
-/**
- * Route handler type
- */
 type RouteHandler = (req: Request) => Promise<Response> | Response;
 
-/**
- * Route definition
- */
 interface Route {
   method: string;
   path: string;
   handler: RouteHandler;
 }
 
-/**
- * Router class for handling HTTP requests
- */
 export class Router {
   private routes: Route[] = [];
 
@@ -38,9 +29,6 @@ export class Router {
     this.registerRoutes();
   }
 
-  /**
-   * Register all application routes
-   */
   private registerRoutes(): void {
     // Root page
     this.routes.push({
@@ -85,22 +73,15 @@ export class Router {
     });
   }
 
-  /**
-   * Find a matching route for the request
-   */
   private findRoute(method: string, path: string): Route | undefined {
     return this.routes.find((route) => route.method === method && route.path === path);
   }
 
-  /**
-   * Handle incoming HTTP request
-   */
   async handle(req: Request): Promise<Response> {
     const tracer = trace.getTracer("items-service");
     const url = new URL(req.url);
     const path = url.pathname;
 
-    // Create a span for the HTTP request
     return await tracer.startActiveSpan(`${req.method} ${path}`, async (span) => {
       try {
         span.setAttributes({

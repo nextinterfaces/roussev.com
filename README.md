@@ -14,25 +14,26 @@
 1. **Hetzner Cloud Account**
 2. **Hetzner API Token**: Available in Hetzner Cloud Console > Security > API Tokens
 
-## Task Runner
-
-This project uses [Task](https://taskfile.dev/) to common development workflows, Run `task` to see all available tasks.
 
 ## Local Development
+This project uses [Task](https://taskfile.dev/) to common development workflows, Run `task` to see all available tasks.
 
 ```bash
 task local:setup
 task local:start
 
-- Tilt UI: http://localhost:10350
-- PostgreSQL: localhost:5432
-- Items Service: http://localhost:8081
-- Website App: http://localhost:8082
+  🧊 Tilt UI:               http://localhost:10350
+  🔧 Items Service:         http://localhost:8081
+     - Health:              http://localhost:8081/v1/health
+     - API Docs:            http://localhost:8081/docs
+  🌐 Website App:           http://localhost:8082
+     - Health:              http://localhost:8082/health
+  📊 Jaeger UI:             http://localhost:16686
+  🔍 OpenSearch:            http://localhost:9200
+  📊 OpenSearch Dashboards: http://localhost:5601
+  📦 PostgreSQL:            localhost:5432
+     - Connection:          psql postgresql://{.env.POSTGRES_USER}:{.env.POSTGRES_PASSWORD}@localhost:5432/
 ```
-
-## Production Deployment
-
-See [docs/QUICK_START.md](docs/QUICK_START.md) for deploying to Hetzner Cloud
 
 ## Next Steps
 

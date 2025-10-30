@@ -1,0 +1,161 @@
+---
+# OpenSearch Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch
+  namespace: default
+  labels:
+    app: opensearch
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 9200
+      targetPort: 9200
+      protocol: TCP
+    - name: transport
+      port: 9300
+      targetPort: 9300
+      protocol: TCP
+  selector:
+    app: opensearch
+---
+# OpenSearch Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensearch
+  namespace: default
+  labels:
+    app: opensearch
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch
+  template:
+    metadata:
+      labels:
+        app: opensearch
+    spec:
+      containers:
+        - name: opensearch
+          image: opensearchproject/opensearch:2.11.1
+          env:
+            # Single-node cluster for local development
+            - name: discovery.type
+              value: "single-node"
+            # Disable security for local development (easier setup)
+            - name: DISABLE_SECURITY_PLUGIN
+              value: "true"
+            # Disable performance analyzer for lower resource usage
+            - name: DISABLE_INSTALL_DEMO_CONFIG
+              value: "true"
+            # Set cluster name
+            - name: cluster.name
+              value: "opensearch-local"
+            # Set node name
+            - name: node.name
+              value: "opensearch-node1"
+            # Bootstrap memory lock
+            - name: bootstrap.memory_lock
+              value: "true"
+            # Set JVM heap size (adjust based on available memory)
+            - name: OPENSEARCH_JAVA_OPTS
+              value: "-Xms512m -Xmx512m"
+          ports:
+            - containerPort: 9200
+              name: http
+            - containerPort: 9300
+              name: transport
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+          volumeMounts:
+            - name: opensearch-data
+              mountPath: /usr/share/opensearch/data
+      volumes:
+        - name: opensearch-data
+          emptyDir: {}
+---
+# OpenSearch Dashboards Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-dashboards
+  namespace: default
+  labels:
+    app: opensearch-dashboards
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 5601
+      targetPort: 5601
+      protocol: TCP
+  selector:
+    app: opensearch-dashboards
+---
+# OpenSearch Dashboards Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensearch-dashboards
+  namespace: default
+  labels:
+    app: opensearch-dashboards
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch-dashboards
+  template:
+    metadata:
+      labels:
+        app: opensearch-dashboards
+    spec:
+      containers:
+        - name: opensearch-dashboards
+          image: opensearchproject/opensearch-dashboards:2.11.1
+          env:
+            # OpenSearch host
+            - name: OPENSEARCH_HOSTS
+              value: '["http://opensearch:9200"]'
+            # Disable security for local development
+            - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
+              value: "true"
+            # Server settings
+            - name: SERVER_HOST
+              value: "0.0.0.0"
+            - name: SERVER_NAME
+              value: "opensearch-dashboards-local"
+          ports:
+            - containerPort: 5601
+              name: http
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1Gi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /api/status
+              port: 5601
+            initialDelaySeconds: 60
+            periodSeconds: 10
+            timeoutSeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /api/status
+              port: 5601
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+

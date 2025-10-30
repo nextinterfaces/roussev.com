@@ -58,6 +58,11 @@ spec:
           value: "http://jaeger:4318"  # Jaeger service in the cluster
         - name: OTEL_LOG_LEVEL
           value: "info"  # Options: info, debug, verbose
+        # OpenSearch logging configuration
+        - name: OPENSEARCH_ENABLED
+          value: "true"  # Enable sending logs to OpenSearch
+        - name: OPENSEARCH_NODE
+          value: "http://opensearch:9200"  # OpenSearch service in the cluster
         resources:
           requests:
             memory: "64Mi"

@@ -1,0 +1,247 @@
+---
+# OpenSearch Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch
+  namespace: default
+  labels:
+    app: opensearch
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 9200
+      targetPort: 9200
+      protocol: TCP
+    - name: transport
+      port: 9300
+      targetPort: 9300
+      protocol: TCP
+  selector:
+    app: opensearch
+---
+# OpenSearch StatefulSet (for production with persistent storage)
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: opensearch
+  namespace: default
+  labels:
+    app: opensearch
+spec:
+  serviceName: opensearch
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch
+  template:
+    metadata:
+      labels:
+        app: opensearch
+    spec:
+      initContainers:
+        # Increase vm.max_map_count for OpenSearch
+        - name: increase-vm-max-map-count
+          image: busybox:1.36
+          command: ["sysctl", "-w", "vm.max_map_count=262144"]
+          securityContext:
+            privileged: true
+        # Set proper permissions on data directory
+        - name: fix-permissions
+          image: busybox:1.36
+          command: ["sh", "-c", "chown -R 1000:1000 /usr/share/opensearch/data"]
+          volumeMounts:
+            - name: opensearch-data
+              mountPath: /usr/share/opensearch/data
+      containers:
+        - name: opensearch
+          image: opensearchproject/opensearch:2.11.1
+          env:
+            # Single-node cluster (can be scaled later)
+            - name: discovery.type
+              value: "single-node"
+            # Disable security plugin (no authentication required)
+            - name: DISABLE_SECURITY_PLUGIN
+              value: "true"
+            # Set cluster name
+            - name: cluster.name
+              value: "opensearch-prod"
+            # Set node name
+            - name: node.name
+              value: "opensearch-node1"
+            # Bootstrap memory lock
+            - name: bootstrap.memory_lock
+              value: "true"
+            # Set JVM heap size (should be ~50% of container memory)
+            - name: OPENSEARCH_JAVA_OPTS
+              value: "-Xms512m -Xmx512m"
+          ports:
+            - containerPort: 9200
+              name: http
+            - containerPort: 9300
+              name: transport
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          volumeMounts:
+            - name: opensearch-data
+              mountPath: /usr/share/opensearch/data
+          # Startup probe - gives up to 5 minutes for initial startup
+          startupProbe:
+            tcpSocket:
+              port: 9200
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 30  # 30 * 10s = 5 minutes
+          livenessProbe:
+            tcpSocket:
+              port: 9200
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 6
+          readinessProbe:
+            httpGet:
+              path: /_cluster/health
+              port: 9200
+              scheme: HTTP
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            failureThreshold: 3
+      securityContext:
+        fsGroup: 1000
+  volumeClaimTemplates:
+    - metadata:
+        name: opensearch-data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: 5Gi
+---
+# OpenSearch Dashboards Service
+apiVersion: v1
+kind: Service
+metadata:
+  name: opensearch-dashboards
+  namespace: default
+  labels:
+    app: opensearch-dashboards
+spec:
+  type: ClusterIP
+  ports:
+    - name: http
+      port: 5601
+      targetPort: 5601
+      protocol: TCP
+  selector:
+    app: opensearch-dashboards
+---
+# OpenSearch Dashboards Deployment
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: opensearch-dashboards
+  namespace: default
+  labels:
+    app: opensearch-dashboards
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: opensearch-dashboards
+  template:
+    metadata:
+      labels:
+        app: opensearch-dashboards
+    spec:
+      containers:
+        - name: opensearch-dashboards
+          image: opensearchproject/opensearch-dashboards:2.11.1
+          env:
+            # OpenSearch host (HTTP since security is disabled)
+            - name: OPENSEARCH_HOSTS
+              value: '["http://opensearch:9200"]'
+            # Disable security (no authentication required)
+            - name: DISABLE_SECURITY_DASHBOARDS_PLUGIN
+              value: "true"
+            # Server settings
+            - name: SERVER_HOST
+              value: "0.0.0.0"
+            - name: SERVER_NAME
+              value: "opensearch-dashboards"
+            # Base path for reverse proxy
+            - name: SERVER_BASEPATH
+              value: "/opensearch"
+            - name: SERVER_REWRITEBASEPATH
+              value: "true"
+          ports:
+            - containerPort: 5601
+              name: http
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "100m"
+            limits:
+              memory: "384Mi"
+              cpu: "250m"
+          # Startup probe - gives up to 5 minutes for initial startup
+          startupProbe:
+            httpGet:
+              path: /opensearch/api/status
+              port: 5601
+            initialDelaySeconds: 30
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 30  # 30 * 10s = 5 minutes max startup time
+          livenessProbe:
+            httpGet:
+              path: /opensearch/api/status
+              port: 5601
+            initialDelaySeconds: 120  # Increased from 90s
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 6  # Allow 6 failures before restart (60s grace)
+          readinessProbe:
+            httpGet:
+              path: /opensearch/api/status
+              port: 5601
+            initialDelaySeconds: 90  # Increased from 60s
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3  # Allow 3 failures before marking unready
+---
+# Ingress for OpenSearch Dashboards
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: opensearch-dashboards
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "600"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - app.roussev.com
+    secretName: items-service-tls
+  rules:
+  - host: app.roussev.com
+    http:
+      paths:
+      - path: /opensearch
+        pathType: Prefix
+        backend:
+          service:
+            name: opensearch-dashboards
+            port:
+              number: 5601
+

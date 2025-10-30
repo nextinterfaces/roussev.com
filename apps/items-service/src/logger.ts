@@ -16,6 +16,8 @@ import { trace, context } from "@opentelemetry/api";
 
 const LOG_LEVEL = process.env.LOG_LEVEL || "info";
 const NODE_ENV = process.env.NODE_ENV || "development";
+const OPENSEARCH_ENABLED = process.env.OPENSEARCH_ENABLED === "true";
+const OPENSEARCH_NODE = process.env.OPENSEARCH_NODE || "http://opensearch:9200";
 
 // Determine if we should use pretty printing
 const usePrettyPrint = NODE_ENV === "development" || process.env.LOG_PRETTY === "true";
@@ -52,23 +54,148 @@ const loggerConfig: pino.LoggerOptions = {
 };
 
 /**
+ * OpenSearch log shipper
+ * Sends logs to OpenSearch in batches
+ */
+class OpenSearchShipper {
+  private buffer: any[] = [];
+  private flushInterval: Timer | null = null;
+  private readonly maxBufferSize = 10;
+  private readonly flushIntervalMs = 5000;
+
+  constructor() {
+    if (OPENSEARCH_ENABLED) {
+      this.startFlushInterval();
+    }
+  }
+
+  private startFlushInterval() {
+    this.flushInterval = setInterval(() => {
+      this.flush();
+    }, this.flushIntervalMs);
+  }
+
+  add(log: any) {
+    if (!OPENSEARCH_ENABLED) return;
+
+    this.buffer.push(log);
+
+    if (this.buffer.length >= this.maxBufferSize) {
+      this.flush();
+    }
+  }
+
+  private async flush() {
+    if (this.buffer.length === 0) return;
+
+    const logsToSend = [...this.buffer];
+    this.buffer = [];
+
+    try {
+      // Build bulk request body
+      const bulkBody = logsToSend
+        .map((log) => {
+          const indexAction = JSON.stringify({
+            index: { _index: "items-service-logs" },
+          });
+          const document = JSON.stringify(log);
+          return `${indexAction}\n${document}`;
+        })
+        .join("\n") + "\n";
+
+      // Send to OpenSearch
+      const response = await fetch(`${OPENSEARCH_NODE}/_bulk`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-ndjson",
+        },
+        body: bulkBody,
+      });
+
+      if (!response.ok) {
+        console.error(`Failed to send logs to OpenSearch: ${response.status}`);
+      }
+    } catch (error) {
+      console.error("Error sending logs to OpenSearch:", error);
+    }
+  }
+
+  stop() {
+    if (this.flushInterval) {
+      clearInterval(this.flushInterval);
+    }
+    this.flush();
+  }
+}
+
+const openSearchShipper = new OpenSearchShipper();
+
+// Handle process exit to flush remaining logs
+process.on("exit", () => {
+  openSearchShipper.stop();
+});
+
+/**
+ * Create a writable stream that sends logs to OpenSearch
+ */
+const openSearchStream = {
+  write: (log: string) => {
+    try {
+      const logObj = JSON.parse(log);
+      openSearchShipper.add(logObj);
+    } catch (error) {
+      // Ignore parse errors
+    }
+  },
+};
+
+/**
  * Create the logger instance with optional pretty printing
  */
-export const logger = usePrettyPrint
-  ? pino(
-      loggerConfig,
-      pino.transport({
-        target: "pino-pretty",
-        options: {
-          colorize: true,
-          translateTime: "HH:MM:ss.l",
-          ignore: "pid,hostname",
-          singleLine: false,
-          messageFormat: "{levelLabel} - {msg}",
-        },
-      })
-    )
-  : pino(loggerConfig);
+export const logger = (() => {
+  // If OpenSearch is enabled, use multi-stream: console + OpenSearch
+  if (OPENSEARCH_ENABLED) {
+    const streams: any[] = [
+      // Console output (pretty or JSON)
+      usePrettyPrint
+        ? {
+            level: LOG_LEVEL,
+            stream: pino.transport({
+              target: "pino-pretty",
+              options: {
+                colorize: true,
+                translateTime: "HH:MM:ss.l",
+                ignore: "pid,hostname",
+                singleLine: false,
+                messageFormat: "{levelLabel} - {msg}",
+              },
+            }),
+          }
+        : { level: LOG_LEVEL, stream: process.stdout },
+      // OpenSearch output
+      { level: LOG_LEVEL, stream: openSearchStream },
+    ];
+
+    return pino(loggerConfig, pino.multistream(streams));
+  }
+
+  // Otherwise, use pretty printing or standard JSON output
+  return usePrettyPrint
+    ? pino(
+        loggerConfig,
+        pino.transport({
+          target: "pino-pretty",
+          options: {
+            colorize: true,
+            translateTime: "HH:MM:ss.l",
+            ignore: "pid,hostname",
+            singleLine: false,
+            messageFormat: "{levelLabel} - {msg}",
+          },
+        })
+      )
+    : pino(loggerConfig);
+})();
 
 /**
  * Get OpenTelemetry trace context for correlation

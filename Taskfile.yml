@@ -236,6 +236,24 @@ tasks:
       - echo ""
       - echo "Jaeger UI available at https://app.roussev.com/jaeger"
 
+  deploy:opensearch:
+    desc: Deploy OpenSearch and OpenSearch Dashboards
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/observability/opensearch-deployment.yaml
+      - echo "OpenSearch deployed"
+      - echo "Waiting for StatefulSet to be ready..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status statefulset/opensearch --timeout=300s
+      - echo "Waiting for OpenSearch Dashboards to be ready..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/opensearch-dashboards --timeout=300s
+      - echo ""
+      - echo "OpenSearch Dashboards available at https://app.roussev.com/opensearch"
+      - echo "No authentication required"
+
+  debug:opensearch:
+    desc: Debug OpenSearch and OpenSearch Dashboards issues
+    cmds:
+      - ./scripts/debug-opensearch.sh
+
   # Rollout tasks
   rollout:restart:items-service:
     desc: Restart items-service deployment

@@ -35,12 +35,45 @@ Access the service at:
 - Health Check: http://localhost:8081/v1/health
 - API Docs: http://localhost:8081/docs
 
-## Technology Stack
 
-- **Runtime**: [Bun](https://bun.sh/) - Fast JavaScript runtime
-- **Database**: PostgreSQL with [postgres.js](https://github.com/porsager/postgres)
-- **Logging**: [Pino](https://getpino.io/) - High-performance structured logging
-- **Observability**: [OpenTelemetry](https://opentelemetry.io/) - Distributed tracing
+#### PostgreSQL Database (Port 5432)
+- **Host**: localhost
+- **Port**: 5432
+- **Connection String**: `psql postgresql://{.env.POSTGRES_USER}:{.env.POSTGRES_PASSWORD}@localhost:5432/{.env.POSTGRES_DB}`
+
+#### Jaeger (Distributed Tracing)
+- **Jaeger UI**: http://localhost:16686
+- **Jaeger API**: http://localhost:16686/api/services
+- **Search Traces**: http://localhost:16686/api/traces?service=items-service&limit=20
+- **OTLP HTTP Endpoint**: http://localhost:4318/v1/traces (POST only - for sending traces)
+- **OTLP gRPC Endpoint**: localhost:4317 (gRPC protocol - for sending traces)
+
+#### Quick Test Commands
+```bash
+# Test items service health
+curl http://localhost:8081/v1/health
+
+# List all items
+curl http://localhost:8081/v1/items
+
+# Create a new item
+curl -X POST http://localhost:8081/v1/items \
+  -H "Content-Type: application/json" \
+  -d '{"name":"test-item"}'
+
+# Connect to PostgreSQL
+psql postgresql://{.env.POSTGRES_USER}:{.env.POSTGRES_PASSWORD}@localhost:5432/{.env.POSTGRES_DB}
+
+# View traces in Jaeger
+open http://localhost:16686
+```
+
+## Tech Stack
+
+- **Runtime**: [Bun](https://bun.sh/)
+- **Database**: PostgreSQL
+- **Logging**: [Pino](https://getpino.io/) - structured logging
+- **Observability**: OpenTelemetry - distributed tracing
 - **Container**: Docker with Alpine Linux
 - **Orchestration**: Kubernetes (k3s)
 - **Local Development**: Task and Tilt with k3d

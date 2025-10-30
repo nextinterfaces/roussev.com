@@ -29,8 +29,6 @@ task local:start
   🌐 Website App:           http://localhost:8082
      - Health:              http://localhost:8082/health
   📊 Jaeger UI:             http://localhost:16686
-  🔍 OpenSearch:            http://localhost:9200
-  📊 OpenSearch Dashboards: http://localhost:5601
   📦 PostgreSQL:            localhost:5432
      - Connection:          psql postgresql://{.env.POSTGRES_USER}:{.env.POSTGRES_PASSWORD}@localhost:5432/
 ```

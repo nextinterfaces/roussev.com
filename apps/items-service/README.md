@@ -9,6 +9,7 @@ A simple REST API service for managing items, built with Bun and PostgreSQL.
 - **Health check** endpoint with database connectivity status
 - **OpenAPI/Swagger** documentation
 - **OpenTelemetry** distributed tracing support
+- **Prometheus** metrics collection and export
 - **Structured Logging** with Pino for high-performance logging
 - **Hot reload** in development mode
 - **Docker** support with development and production configurations
@@ -21,6 +22,7 @@ A simple REST API service for managing items, built with Bun and PostgreSQL.
 - `POST /v1/items` - Create a new item
 - `GET /docs` - Swagger UI for interactive API documentation
 - `GET /v1/openapi.json` - OpenAPI specification
+- `GET /metrics` - Prometheus metrics endpoint
 
 ## Local Development
 
@@ -34,6 +36,7 @@ Access the service at:
 - Service: http://localhost:8081
 - Health Check: http://localhost:8081/v1/health
 - API Docs: http://localhost:8081/docs
+- Metrics: http://localhost:8081/metrics
 
 
 #### PostgreSQL Database (Port 5432)
@@ -61,6 +64,9 @@ curl -X POST http://localhost:8081/v1/items \
   -H "Content-Type: application/json" \
   -d '{"name":"test-item"}'
 
+# View Prometheus metrics
+curl http://localhost:8081/metrics
+
 # Connect to PostgreSQL
 psql postgresql://{.env.POSTGRES_USER}:{.env.POSTGRES_PASSWORD}@localhost:5432/{.env.POSTGRES_DB}
 
@@ -73,7 +79,9 @@ open http://localhost:16686
 - **Runtime**: [Bun](https://bun.sh/)
 - **Database**: PostgreSQL
 - **Logging**: [Pino](https://getpino.io/) - structured logging
-- **Observability**: OpenTelemetry - distributed tracing
+- **Observability**:
+  - OpenTelemetry - distributed tracing
+  - Prometheus - metrics collection and export
 - **Container**: Docker with Alpine Linux
 - **Orchestration**: Kubernetes (k3s)
 - **Local Development**: Task and Tilt with k3d

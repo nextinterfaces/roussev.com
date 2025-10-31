@@ -91,6 +91,7 @@ k8s_resource(
     links=[
         link('http://localhost:8081/v1/health', 'Health Check'),
         link('http://localhost:8081/docs', 'API Docs'),
+        link('http://localhost:8081/metrics', 'Prometheus Metrics'),
     ]
 )
 

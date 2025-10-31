@@ -26,12 +26,22 @@ task local:start
   🔧 Items Service:         http://localhost:8081
      - Health:              http://localhost:8081/v1/health
      - API Docs:            http://localhost:8081/docs
+     - Metrics:             http://localhost:8081/metrics
   🌐 Website App:           http://localhost:8082
      - Health:              http://localhost:8082/health
   📊 Jaeger UI:             http://localhost:16686
   📦 PostgreSQL:            localhost:5432
      - Connection:          psql postgresql://{.env.POSTGRES_USER}:{.env.POSTGRES_PASSWORD}@localhost:5432/
 ```
+
+## Production URLs
+
+- **Website**: https://roussev.com
+- **Items API**: https://app.roussev.com/items
+  - Health: https://app.roussev.com/items/v1/health
+  - Docs: https://app.roussev.com/items/docs
+  - Metrics: https://app.roussev.com/items/metrics
+- **Jaeger Tracing**: https://app.roussev.com/jaeger
 
 ## Next Steps
 

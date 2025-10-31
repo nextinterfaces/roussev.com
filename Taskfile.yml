@@ -255,7 +255,7 @@ tasks:
       - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/grafana --timeout=120s
       - echo ""
       - echo "Grafana UI available at https://app.roussev.com/grafana"
-      - echo "Default credentials - admin/admin"
+      - echo "Anonymous access enabled (no login required)"
 
   deploy:observability:
     desc: Deploy full observability stack (Jaeger, Prometheus, Grafana)

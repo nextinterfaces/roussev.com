@@ -44,8 +44,8 @@ export function getRootPageHtml(): string {
 
             <p>A simple REST API service for managing items, built with Bun, Postgre, Jaeger and OpenTelemetry.</p>
 
-            <p><a href="/jaeger" target="_blank">Jaeger OTel Tracing</a></p>
-
+            <p><a href="/jaeger" target="_blank">Jaeger Open Telemetry</a></p>
+            <p><a href="/metrics" target="_blank">Prometheus Metrics</a></p>
             <p><a href="/items/docs" target="_blank">Swagger Docs</a></p>
 
             <p><strong>API Endpoints:</strong></p>

@@ -46,7 +46,7 @@ k8s_resource(
 )
 
 # ============================================================================
-# Jaeger (OpenTelemetry Collector)
+# Observability Stack
 # ============================================================================
 
 # Deploy Jaeger for distributed tracing
@@ -60,6 +60,35 @@ k8s_resource(
     resource_deps=[],
     links=[
         link('http://localhost:16686', 'Jaeger UI'),
+    ]
+)
+
+# Deploy Prometheus for metrics collection
+k8s_yaml('infra/k8s/local/prometheus-local.yaml')
+
+# Configure Prometheus resource
+k8s_resource(
+    'prometheus',
+    port_forwards='9090:9090',
+    labels=['observability'],
+    resource_deps=[],
+    links=[
+        link('http://localhost:9090', 'Prometheus UI'),
+        link('http://localhost:9090/targets', 'Prometheus Targets'),
+    ]
+)
+
+# Deploy Grafana for metrics visualization
+k8s_yaml('infra/k8s/local/grafana-local.yaml')
+
+# Configure Grafana resource
+k8s_resource(
+    'grafana',
+    port_forwards='3000:3000',
+    labels=['observability'],
+    resource_deps=['prometheus'],
+    links=[
+        link('http://localhost:3000', 'Grafana UI'),
     ]
 )
 
@@ -87,7 +116,7 @@ k8s_resource(
     'items-service',
     port_forwards='8081:8080',
     labels=['apps'],
-    resource_deps=['postgres', 'jaeger'],
+    resource_deps=['postgres', 'jaeger', 'prometheus'],
     links=[
         link('http://localhost:8081/v1/health', 'Health Check'),
         link('http://localhost:8081/docs', 'API Docs'),
@@ -142,9 +171,14 @@ Services will be available at:
   🔧 Items Service:   http://localhost:8081
      - Health:        http://localhost:8081/v1/health
      - API Docs:      http://localhost:8081/docs
+     - Metrics:       http://localhost:8081/metrics
   🌐 Website App:     http://localhost:8082
      - Health:        http://localhost:8082/health
-  📊 Jaeger UI:       http://localhost:16686
+
+  📊 Observability:
+     - Jaeger UI:     http://localhost:16686
+     - Prometheus:    http://localhost:9090
+     - Grafana:       http://localhost:3000
 
 Press 'space' to open Tilt UI in your browser
 Press 'q' to quit

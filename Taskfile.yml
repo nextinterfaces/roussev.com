@@ -236,6 +236,34 @@ tasks:
       - echo ""
       - echo "Jaeger UI available at https://app.roussev.com/jaeger"
 
+  deploy:prometheus:
+    desc: Deploy Prometheus for metrics collection
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/observability/prometheus-deployment.yaml
+      - echo "Prometheus deployed"
+      - echo "Waiting for rollout to complete..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/prometheus --timeout=120s
+      - echo ""
+      - echo "Prometheus UI available at https://app.roussev.com/prometheus"
+
+  deploy:grafana:
+    desc: Deploy Grafana for metrics visualization
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/observability/grafana-deployment.yaml
+      - echo "Grafana deployed"
+      - echo "Waiting for rollout to complete..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/grafana --timeout=120s
+      - echo ""
+      - echo "Grafana UI available at https://app.roussev.com/grafana"
+      - echo "Default credentials - admin/admin"
+
+  deploy:observability:
+    desc: Deploy full observability stack (Jaeger, Prometheus, Grafana)
+    cmds:
+      - task: deploy:jaeger
+      - task: deploy:prometheus
+      - task: deploy:grafana
+
   # Rollout tasks
   rollout:restart:items-service:
     desc: Restart items-service deployment

@@ -5,6 +5,7 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import { ATTR_SERVICE_NAME, ATTR_SERVICE_VERSION } from "@opentelemetry/semantic-conventions";
 import { diag, DiagConsoleLogger, DiagLogLevel } from "@opentelemetry/api";
+import { initPrometheusMetrics, shutdownPrometheusMetrics } from "./metrics.js";
 
 // Configuration from environment variables
 const OTEL_ENABLED = process.env.OTEL_ENABLED !== "false"; // Default to true
@@ -67,6 +68,9 @@ export function initTelemetry() {
     console.log(`Service: ${OTEL_SERVICE_NAME} v${OTEL_SERVICE_VERSION}`);
     console.log(`Endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT}`);
 
+    // Initialize Prometheus metrics
+    initPrometheusMetrics();
+
     // Handle graceful shutdown
     process.on("SIGTERM", async () => {
       await shutdownTelemetry();
@@ -83,6 +87,10 @@ export function initTelemetry() {
 }
 
 export async function shutdownTelemetry() {
+  // Shutdown Prometheus metrics
+  await shutdownPrometheusMetrics();
+
+  // Shutdown OpenTelemetry SDK
   if (sdk) {
     try {
       await sdk.shutdown();

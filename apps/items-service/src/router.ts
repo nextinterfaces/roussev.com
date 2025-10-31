@@ -10,6 +10,7 @@ import { openapi } from "./openapi.js";
 import { json, notFound, html } from "./http-utils.js";
 import type { ServerConfig } from "./config.js";
 import { logRequest, logResponse, logError } from "./logger.js";
+import { getPrometheusExporter, recordHttpRequest } from "./metrics.js";
 
 type RouteHandler = (req: Request) => Promise<Response> | Response;
 
@@ -59,6 +60,13 @@ export class Router {
       handler: () => this.healthController.check(),
     });
 
+    // Prometheus metrics endpoint
+    this.routes.push({
+      method: "GET",
+      path: "/metrics",
+      handler: () => this.handleMetrics(),
+    });
+
     // List items
     this.routes.push({
       method: "GET",
@@ -76,6 +84,47 @@ export class Router {
 
   private findRoute(method: string, path: string): Route | undefined {
     return this.routes.find((route) => route.method === method && route.path === path);
+  }
+
+  /**
+   * Handle Prometheus metrics endpoint
+   * Returns metrics in Prometheus text format
+   */
+  private async handleMetrics(): Promise<Response> {
+    const exporter = getPrometheusExporter();
+
+    if (!exporter) {
+      return new Response("Prometheus metrics not initialized", {
+        status: 503,
+        headers: { "Content-Type": "text/plain" }
+      });
+    }
+
+    try {
+      // The PrometheusExporter has a getMetricsRequestHandler method
+      // that returns a promise with the metrics in Prometheus text format
+      return new Promise((resolve) => {
+        const mockReq = {} as any;
+        const mockRes = {
+          statusCode: 200,
+          setHeader: () => {},
+          end: (data: string) => {
+            resolve(new Response(data, {
+              status: 200,
+              headers: { "Content-Type": "text/plain; version=0.0.4; charset=utf-8" }
+            }));
+          }
+        } as any;
+
+        exporter.getMetricsRequestHandler(mockReq, mockRes);
+      });
+    } catch (error) {
+      console.error("Error generating metrics:", error);
+      return new Response("Error generating metrics", {
+        status: 500,
+        headers: { "Content-Type": "text/plain" }
+      });
+    }
   }
 
   async handle(req: Request): Promise<Response> {
@@ -112,6 +161,11 @@ export class Router {
         }
 
         logResponse(req, response, duration);
+
+        // Record metrics
+        if (path !== "/metrics") {
+          recordHttpRequest(req.method, path, response.status, duration);
+        }
 
         return response;
       } catch (error) {

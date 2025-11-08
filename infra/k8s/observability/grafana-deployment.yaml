@@ -130,12 +130,19 @@ spec:
           value: "https://app.roussev.com/grafana"
         - name: GF_SERVER_SERVE_FROM_SUB_PATH
           value: "true"
+        # Anonymous access - read-only for public viewing
         - name: GF_AUTH_ANONYMOUS_ENABLED
           value: "true"
         - name: GF_AUTH_ANONYMOUS_ORG_ROLE
-          value: "Admin"
+          value: "Viewer"
+        # Keep login form enabled for admin access
         - name: GF_AUTH_DISABLE_LOGIN_FORM
-          value: "true"
+          value: "false"
+        # Admin credentials for editing dashboards
+        - name: GF_SECURITY_ADMIN_USER
+          value: "admin"
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          value: "admin"
         - name: GF_SECURITY_ALLOW_EMBEDDING
           value: "true"
         volumeMounts:

@@ -48,7 +48,7 @@ export function getRootPageHtml(): string {
             <p><a href="/grafana/d/items-service-metrics/items-service-metrics" target="_blank">Grafana</a> - Metrics dashboard</p>
             <p><a href="/items/prometheus-queries" target="_blank">Prometheus</a> - Metrics queries</p>
             <p><a href="/jaeger" target="_blank">Jaeger</a> - Distributed tracing</p>
-            <p><a href="/items/metrics" target="_blank">Metrics Endpoint</a> - Raw Prometheus metrics</p>
+            <p><a href="/items/metrics" target="_blank">Prometheus metrics</a></p>
 
             <p><strong>Docs:</strong></p>
             <p><a href="/items/docs" target="_blank">Open API / Swagger Docs</a></p>

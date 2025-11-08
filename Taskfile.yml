@@ -147,6 +147,34 @@ tasks:
     cmds:
       - echo "export KUBECONFIG={{.KUBECONFIG}}"
 
+  k8s:status:
+    desc: Check status of production Kubernetes cluster
+    cmds:
+      - echo "=================================================="
+      - echo "🔍 Kubernetes Cluster Status"
+      - echo "=================================================="
+      - echo ""
+      - echo "📦 Pods:"
+      - kubectl --kubeconfig={{.KUBECONFIG}} get pods -o wide
+      - echo ""
+      - echo "💾 Resource Usage:"
+      - kubectl --kubeconfig={{.KUBECONFIG}} top pods 2>/dev/null || echo "Metrics not available"
+      - echo ""
+      - echo "🌐 Services:"
+      - kubectl --kubeconfig={{.KUBECONFIG}} get services
+      - echo ""
+      - echo "🔗 Ingress:"
+      - kubectl --kubeconfig={{.KUBECONFIG}} get ingress
+      - echo ""
+      - echo "🖥️  Node Status:"
+      - kubectl --kubeconfig={{.KUBECONFIG}} get nodes
+      - echo ""
+      - kubectl --kubeconfig={{.KUBECONFIG}} top node 2>/dev/null || echo "Node metrics not available"
+      - echo ""
+      - echo "📊 Deployments:"
+      - kubectl --kubeconfig={{.KUBECONFIG}} get deployments
+      - echo ""
+
   k8s:get-pods:
     desc: Get all pods
     cmds:

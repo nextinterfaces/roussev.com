@@ -45,13 +45,12 @@ export function getRootPageHtml(): string {
             <p>A simple REST API service for managing items, built with Bun, Postgre, Jaeger and OpenTelemetry.</p>
 
             <p><strong>Observability:</strong></p>
-            <p><a href="https://app.roussev.com/grafana/d/items-service-metrics/items-service-metrics" target="_blank">Grafana</a> - Metrics dashboard</p>
+            <p><a href="/grafana/d/items-service-metrics/items-service-metrics" target="_blank">Grafana</a> - Metrics dashboard</p>
+            <p><a href="/items/prometheus-queries" target="_blank">Prometheus</a> - Metrics queries</p>
             <p><a href="/jaeger" target="_blank">Jaeger</a> - Distributed tracing</p>
             <p><a href="/items/metrics" target="_blank">Metrics Endpoint</a> - Raw Prometheus metrics</p>
-            <p><a href="/items/prometheus-queries" target="_blank">Prometheus Queries</a> - Preconfigured metric queries</p>
-            <p><a href="/prometheus" target="_blank">Prometheus</a> - Metrics collection</p>
 
-            <p><strong>Documentation:</strong></p>
+            <p><strong>Docs:</strong></p>
             <p><a href="/items/docs" target="_blank">Open API / Swagger Docs</a></p>
 
             <p><strong>API Endpoints:</strong></p>
@@ -158,7 +157,7 @@ export function getPrometheusQueriesHtml(): string {
 </head>
 <body>
     <div class="container">
-        <h1>Items Service - Prometheus Metrics Dashboard</h1>
+        <h1>Prometheus Metrics Dashboard</h1>
 
         <h2 style="margin-top: 30px; color: #333;">Basic Metrics</h2>
         <div class="metrics-grid">
@@ -172,7 +171,7 @@ export function getPrometheusQueriesHtml(): string {
 
             <div class="metric-card">
                 <h3>Total HTTP Requests</h3>
-                <p>All HTTP requests received by the service</p>
+                <p>Total number of HTTP requests since startup</p>
                 <div class="query-box">http_server_requests_total</div>
                 <a href="/prometheus/graph?g0.expr=http_server_requests_total&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
                    class="btn" target="_blank">Open</a>
@@ -187,7 +186,7 @@ export function getPrometheusQueriesHtml(): string {
             </div>
         </div>
 
-        <h2 style="margin-top: 30px; color: #333;">📈 Request Rate (RPS)</h2>
+        <h2 style="margin-top: 30px; color: #333;">Request Rate (RPS)</h2>
         <div class="metrics-grid">
             <div class="metric-card">
                 <h3>Overall Request Rate</h3>
@@ -214,7 +213,7 @@ export function getPrometheusQueriesHtml(): string {
             </div>
         </div>
 
-        <h2 style="margin-top: 30px; color: #333;">⏱️ Latency Metrics</h2>
+        <h2 style="margin-top: 30px; color: #333;">Latency Metrics</h2>
         <div class="metrics-grid">
             <div class="metric-card">
                 <h3>Average Response Time</h3>
@@ -277,7 +276,7 @@ export function getPrometheusQueriesHtml(): string {
         </div>
 
         <div class="section" style="margin-top: 30px;">
-            <h2>🧪 Generate Test Traffic</h2>
+            <h2>Generate Test Traffic</h2>
             <p>Before viewing metrics, generate some traffic:</p>
             <pre style="background: #f8f9fa; padding: 15px; border-radius: 4px; overflow-x: auto;"><code>for i in {1..50}; do
   curl -s https://app.roussev.com/items/v1/health > /dev/null

@@ -159,22 +159,15 @@ export function getPrometheusQueriesHtml(): string {
 <body>
     <div class="container">
         <h1>Items Service - Prometheus Metrics Dashboard</h1>
-        <p class="subtitle">Quick links to preconfigured Prometheus queries</p>
 
-        <div class="section">
-            <h2>🚀 Quick Start</h2>
-            <p>Click any "Open in Prometheus" button below to view the metric in the Prometheus UI.</p>
-            <p><strong>Prometheus URL:</strong> <a href="/prometheus" target="_blank">/prometheus</a></p>
-        </div>
-
-        <h2 style="margin-top: 30px; color: #333;">📊 Basic Metrics</h2>
+        <h2 style="margin-top: 30px; color: #333;">Basic Metrics</h2>
         <div class="metrics-grid">
             <div class="metric-card">
                 <h3>Service Health</h3>
                 <p>Check if items-service is up and being scraped</p>
                 <div class="query-box">up{job="items-service"}</div>
                 <a href="/prometheus/graph?g0.expr=up%7Bjob%3D%22items-service%22%7D&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
-                   class="btn" target="_blank">Open in Prometheus</a>
+                   class="btn" target="_blank">Open</a>
             </div>
 
             <div class="metric-card">
@@ -182,7 +175,7 @@ export function getPrometheusQueriesHtml(): string {
                 <p>All HTTP requests received by the service</p>
                 <div class="query-box">http_server_requests_total</div>
                 <a href="/prometheus/graph?g0.expr=http_server_requests_total&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
-                   class="btn" target="_blank">Open in Prometheus</a>
+                   class="btn" target="_blank">Open</a>
             </div>
 
             <div class="metric-card">
@@ -190,7 +183,7 @@ export function getPrometheusQueriesHtml(): string {
                 <p>HTTP requests grouped by route</p>
                 <div class="query-box">http_server_requests_total{route="/v1/items"}</div>
                 <a href="/prometheus/graph?g0.expr=http_server_requests_total%7Broute%3D%22%2Fv1%2Fitems%22%7D&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
-                   class="btn" target="_blank">Open in Prometheus</a>
+                   class="btn" target="_blank">Open</a>
             </div>
         </div>
 
@@ -201,7 +194,7 @@ export function getPrometheusQueriesHtml(): string {
                 <p>Requests per second over the last 5 minutes</p>
                 <div class="query-box">rate(http_server_requests_total[5m])</div>
                 <a href="/prometheus/graph?g0.expr=rate(http_server_requests_total%5B5m%5D)&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
-                   class="btn" target="_blank">Open in Prometheus</a>
+                   class="btn" target="_blank">Open</a>
             </div>
 
             <div class="metric-card">
@@ -209,7 +202,7 @@ export function getPrometheusQueriesHtml(): string {
                 <p>RPS grouped by route and method</p>
                 <div class="query-box">sum by(route, method) (rate(http_server_requests_total[5m]))</div>
                 <a href="/prometheus/graph?g0.expr=sum%20by(route%2C%20method)%20(rate(http_server_requests_total%5B5m%5D))&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
-                   class="btn" target="_blank">Open in Prometheus</a>
+                   class="btn" target="_blank">Open</a>
             </div>
 
             <div class="metric-card">
@@ -217,7 +210,7 @@ export function getPrometheusQueriesHtml(): string {
                 <p>RPS grouped by HTTP status code</p>
                 <div class="query-box">sum by(status_code) (rate(http_server_requests_total[5m]))</div>
                 <a href="/prometheus/graph?g0.expr=sum%20by(status_code)%20(rate(http_server_requests_total%5B5m%5D))&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
-                   class="btn" target="_blank">Open in Prometheus</a>
+                   class="btn" target="_blank">Open</a>
             </div>
         </div>
 
@@ -228,7 +221,7 @@ export function getPrometheusQueriesHtml(): string {
                 <p>Mean request duration in milliseconds</p>
                 <div class="query-box">rate(http_server_duration_sum[5m]) / rate(http_server_duration_count[5m])</div>
                 <a href="/prometheus/graph?g0.expr=rate(http_server_duration_sum%5B5m%5D)%20%2F%20rate(http_server_duration_count%5B5m%5D)&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
-                   class="btn" target="_blank">Open in Prometheus</a>
+                   class="btn" target="_blank">Open</a>
             </div>
 
             <div class="metric-card">
@@ -236,7 +229,7 @@ export function getPrometheusQueriesHtml(): string {
                 <p>95th percentile response time</p>
                 <div class="query-box">histogram_quantile(0.95, rate(http_server_duration_bucket[5m]))</div>
                 <a href="/prometheus/graph?g0.expr=histogram_quantile(0.95%2C%20rate(http_server_duration_bucket%5B5m%5D))&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
-                   class="btn" target="_blank">Open in Prometheus</a>
+                   class="btn" target="_blank">Open</a>
             </div>
 
             <div class="metric-card">
@@ -244,7 +237,7 @@ export function getPrometheusQueriesHtml(): string {
                 <p>99th percentile response time</p>
                 <div class="query-box">histogram_quantile(0.99, rate(http_server_duration_bucket[5m]))</div>
                 <a href="/prometheus/graph?g0.expr=histogram_quantile(0.99%2C%20rate(http_server_duration_bucket%5B5m%5D))&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
-                   class="btn" target="_blank">Open in Prometheus</a>
+                   class="btn" target="_blank">Open</a>
             </div>
 
             <div class="metric-card">
@@ -252,18 +245,18 @@ export function getPrometheusQueriesHtml(): string {
                 <p>50th percentile response time</p>
                 <div class="query-box">histogram_quantile(0.50, rate(http_server_duration_bucket[5m]))</div>
                 <a href="/prometheus/graph?g0.expr=histogram_quantile(0.50%2C%20rate(http_server_duration_bucket%5B5m%5D))&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
-                   class="btn" target="_blank">Open in Prometheus</a>
+                   class="btn" target="_blank">Open</a>
             </div>
         </div>
 
-        <h2 style="margin-top: 30px; color: #333;">🚨 Error Monitoring</h2>
+        <h2 style="margin-top: 30px; color: #333;">Error Monitoring</h2>
         <div class="metrics-grid">
             <div class="metric-card">
                 <h3>Error Rate (5xx)</h3>
                 <p>Rate of server errors</p>
                 <div class="query-box">rate(http_server_requests_total{status_code=~"5.."}[5m])</div>
                 <a href="/prometheus/graph?g0.expr=rate(http_server_requests_total%7Bstatus_code%3D~%225..%22%7D%5B5m%5D)&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
-                   class="btn" target="_blank">Open in Prometheus</a>
+                   class="btn" target="_blank">Open</a>
             </div>
 
             <div class="metric-card">
@@ -271,7 +264,7 @@ export function getPrometheusQueriesHtml(): string {
                 <p>Rate of client errors</p>
                 <div class="query-box">rate(http_server_requests_total{status_code=~"4.."}[5m])</div>
                 <a href="/prometheus/graph?g0.expr=rate(http_server_requests_total%7Bstatus_code%3D~%224..%22%7D%5B5m%5D)&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
-                   class="btn" target="_blank">Open in Prometheus</a>
+                   class="btn" target="_blank">Open</a>
             </div>
 
             <div class="metric-card">
@@ -279,30 +272,20 @@ export function getPrometheusQueriesHtml(): string {
                 <p>Percentage of requests that failed</p>
                 <div class="query-box">sum(rate(http_server_requests_total{status_code=~"5.."}[5m])) / sum(rate(http_server_requests_total[5m])) * 100</div>
                 <a href="/prometheus/graph?g0.expr=sum(rate(http_server_requests_total%7Bstatus_code%3D~%225..%22%7D%5B5m%5D))%20%2F%20sum(rate(http_server_requests_total%5B5m%5D))%20*%20100&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=1h"
-                   class="btn" target="_blank">Open in Prometheus</a>
+                   class="btn" target="_blank">Open</a>
             </div>
         </div>
 
         <div class="section" style="margin-top: 30px;">
             <h2>🧪 Generate Test Traffic</h2>
-            <p>Before viewing metrics, generate some traffic to your service:</p>
+            <p>Before viewing metrics, generate some traffic:</p>
             <pre style="background: #f8f9fa; padding: 15px; border-radius: 4px; overflow-x: auto;"><code>for i in {1..50}; do
-  curl -s /items/v1/health > /dev/null
-  curl -s /items/v1/items > /dev/null
+  curl -s https://app.roussev.com/items/v1/health > /dev/null
+  curl -s https://app.roussev.com/items/v1/items > /dev/null
   sleep 0.5
 done</code></pre>
         </div>
 
-        <div class="section">
-            <h2>📚 Useful Tips</h2>
-            <ul>
-                <li>Use the <strong>Graph</strong> tab to see time series data</li>
-                <li>Use the <strong>Table</strong> tab to see current values</li>
-                <li>Adjust the time range using the time picker</li>
-                <li>Click on legend items to toggle series visibility</li>
-                <li>Use <code>Ctrl+Space</code> in the query box for autocomplete</li>
-            </ul>
-        </div>
     </div>
 </body>
 </html>`;

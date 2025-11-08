@@ -93,6 +93,14 @@ export function getRootPageHtml(): string {
             </p>
             <p>
                 <svg class="link-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#60D0E4"/>
+                    <path d="M2 17L12 22L22 17" stroke="#60D0E4" stroke-width="2"/>
+                    <path d="M2 12L12 17L22 12" stroke="#60D0E4" stroke-width="2"/>
+                </svg>
+                <a href="/items/tracing" target="_blank">Tracing Showcase</a> - Learn about trace IDs and spans
+            </p>
+            <p>
+                <svg class="link-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="2" y="4" width="20" height="3" fill="#F5A800"/>
                     <rect x="2" y="10" width="20" height="3" fill="#F5A800"/>
                     <rect x="2" y="16" width="20" height="3" fill="#F5A800"/>
@@ -194,6 +202,490 @@ graph TB
             startOnLoad: true,
             theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'
         });
+    </script>
+</body>
+</html>`;
+}
+
+export function getTracingShowcaseHtml(): string {
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Items Service - Distributed Tracing Showcase</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+        .section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 2px solid #60d0e4;
+            padding-bottom: 10px;
+        }
+        .section h3 {
+            color: #333;
+            margin-top: 20px;
+        }
+        .code-box {
+            background: #f8f9fa;
+            border: 1px solid #e1e4e8;
+            border-radius: 4px;
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 13px;
+            margin: 10px 0;
+            overflow-x: auto;
+        }
+        .highlight {
+            background: #fff3cd;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #60d0e4;
+            color: #000;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            transition: background 0.2s;
+            margin: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background: #4db8ca;
+        }
+        .btn-secondary {
+            background: #e85d04;
+            color: white;
+        }
+        .btn-secondary:hover {
+            background: #dc2f02;
+        }
+        .demo-area {
+            background: #e8f4f8;
+            border: 2px solid #60d0e4;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        .log-output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 4px;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 400px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+        .trace-id {
+            color: #4ec9b0;
+            font-weight: bold;
+        }
+        .span-id {
+            color: #ce9178;
+            font-weight: bold;
+        }
+        .info-box {
+            background: #d1ecf1;
+            border-left: 4px solid #0c5460;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #856404;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .card {
+            background: white;
+            border: 1px solid #e1e4e8;
+            border-radius: 8px;
+            padding: 20px;
+        }
+        .card h4 {
+            margin-top: 0;
+            color: #333;
+        }
+        code {
+            background: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+            font-size: 13px;
+        }
+        .step {
+            margin: 20px 0;
+            padding-left: 30px;
+            position: relative;
+        }
+        .step::before {
+            content: attr(data-step);
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #60d0e4;
+            color: #000;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔍 Distributed Tracing Showcase</h1>
+        <p class="subtitle">Learn how to use trace IDs and spans to debug and monitor your distributed systems</p>
+
+        <div class="section">
+            <h2>What is Distributed Tracing?</h2>
+            <p>Distributed tracing helps you understand the flow of requests through your system. Each request gets a unique <strong>trace ID</strong>, and each operation within that request creates a <strong>span</strong>.</p>
+
+            <div class="grid">
+                <div class="card">
+                    <h4>🆔 Trace ID</h4>
+                    <p>A unique identifier for the entire request journey across all services.</p>
+                    <div class="code-box">
+                        <span class="trace-id">7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4>📊 Span ID</h4>
+                    <p>A unique identifier for a specific operation within a trace.</p>
+                    <div class="code-box">
+                        <span class="span-id">1a2b3c4d5e6f7a8b</span>
+                    </div>
+                </div>
+                <div class="card">
+                    <h4>🔗 Parent Span</h4>
+                    <p>Links spans together to show the hierarchy of operations.</p>
+                    <div class="code-box">
+                        <span class="span-id">0f1e2d3c4b5a6978</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Interactive Demo</h2>
+            <div class="demo-area">
+                <h3>Generate a Traced Request</h3>
+                <p>Click the button below to make a request to the items API. Then check the logs and Jaeger to see the trace!</p>
+
+                <button class="btn" onclick="makeTracedRequest()">🚀 Make Request to /v1/items</button>
+                <button class="btn btn-secondary" onclick="makeHealthCheck()">❤️ Health Check</button>
+                <button class="btn" onclick="createItem()">➕ Create Item</button>
+
+                <div id="response-output"></div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>How to View Traces</h2>
+
+            <div class="step" data-step="1">
+                <h3>Make a Request</h3>
+                <p>First, make a request to any endpoint:</p>
+                <div class="code-box">curl https://app.roussev.com/items/v1/items</div>
+            </div>
+
+            <div class="step" data-step="2">
+                <h3>Check the Logs</h3>
+                <p>View the application logs to see the trace ID and span ID:</p>
+                <div class="code-box">kubectl logs -n default deployment/items-service --tail=50</div>
+                <p>Look for fields like:</p>
+                <div class="log-output">
+{
+  "level": "info",
+  "time": "2024-01-15T10:30:45.123Z",
+  "msg": "Incoming request",
+  <span class="trace-id">"trace_id": "7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c"</span>,
+  <span class="span-id">"span_id": "1a2b3c4d5e6f7a8b"</span>,
+  "http": {
+    "method": "GET",
+    "url": "/v1/items"
+  }
+}
+                </div>
+            </div>
+
+            <div class="step" data-step="3">
+                <h3>Open Jaeger UI</h3>
+                <p>Navigate to Jaeger to visualize the trace:</p>
+                <a href="/jaeger" target="_blank" class="btn">Open Jaeger UI</a>
+                <div class="info-box">
+                    <strong>💡 Tip:</strong> In Jaeger, select "items-service" from the Service dropdown and click "Find Traces" to see recent traces.
+                </div>
+            </div>
+
+            <div class="step" data-step="4">
+                <h3>Search by Trace ID</h3>
+                <p>Copy the trace ID from the logs and paste it into Jaeger's search box to see the complete trace with all spans:</p>
+                <div class="code-box">
+                    Jaeger UI → Search → Trace ID: <span class="trace-id">7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Understanding Spans in Items Service</h2>
+            <p>Our service creates multiple spans for each request to track different operations:</p>
+
+            <div class="grid">
+                <div class="card">
+                    <h4>🌐 HTTP Request Span</h4>
+                    <p>The root span for the entire HTTP request</p>
+                    <div class="code-box">GET /v1/items</div>
+                    <p><small>Created in: <code>router.ts</code></small></p>
+                </div>
+                <div class="card">
+                    <h4>📋 List Items Span</h4>
+                    <p>Tracks the business logic for listing items</p>
+                    <div class="code-box">listItems</div>
+                    <p><small>Created in: <code>controllers.ts</code></small></p>
+                </div>
+                <div class="card">
+                    <h4>🗄️ Database Query Span</h4>
+                    <p>Automatically tracked by PostgreSQL instrumentation</p>
+                    <div class="code-box">SELECT * FROM items</div>
+                    <p><small>Auto-instrumented</small></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Correlating Logs with Traces</h2>
+            <p>Every log entry includes the trace ID and span ID, making it easy to correlate logs with traces:</p>
+
+            <div class="warning-box">
+                <strong>🔍 Use Case:</strong> When debugging an issue, copy the trace ID from an error log and search for it in Jaeger to see the complete request flow and identify where the problem occurred.
+            </div>
+
+            <h3>Example: Finding Slow Requests</h3>
+            <div class="step" data-step="1">
+                <p>Search Loki for slow requests:</p>
+                <div class="code-box">{app="items-service"} | json | duration_ms > 1000</div>
+            </div>
+            <div class="step" data-step="2">
+                <p>Copy the <code>trace_id</code> from the log entry</p>
+            </div>
+            <div class="step" data-step="3">
+                <p>Search Jaeger with that trace ID to see which span took the most time</p>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Useful Links</h2>
+            <div class="grid">
+                <div class="card">
+                    <h4>🔍 Jaeger</h4>
+                    <p>Distributed tracing UI</p>
+                    <a href="/jaeger" target="_blank" class="btn">Open Jaeger</a>
+                </div>
+                <div class="card">
+                    <h4>📊 Grafana</h4>
+                    <p>Metrics and dashboards</p>
+                    <a href="/grafana" target="_blank" class="btn">Open Grafana</a>
+                </div>
+                <div class="card">
+                    <h4>📝 Loki</h4>
+                    <p>Log aggregation and search</p>
+                    <a href="/grafana/explore?orgId=1&left=%7B%22datasource%22:%22loki%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22%7Bapp%3D%5C%22items-service%5C%22%7D%22%7D%5D,%22range%22:%7B%22from%22:%22now-1h%22,%22to%22:%22now%22%7D%7D" target="_blank" class="btn">Open Loki</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="section">
+            <h2>Code Examples</h2>
+            <h3>Creating a Custom Span</h3>
+            <p>Here's how we create spans in the items service:</p>
+            <div class="code-box">import { trace, SpanStatusCode } from "@opentelemetry/api";
+
+const tracer = trace.getTracer("items-service");
+
+async function myOperation() {
+  return await tracer.startActiveSpan("myOperation", async (span) => {
+    try {
+      // Add custom attributes
+      span.setAttribute("custom.attribute", "value");
+
+      // Your business logic here
+      const result = await doSomething();
+
+      span.setStatus({ code: SpanStatusCode.OK });
+      return result;
+    } catch (error) {
+      span.recordException(error);
+      span.setStatus({ code: SpanStatusCode.ERROR });
+      throw error;
+    } finally {
+      span.end();
+    }
+  });
+}</div>
+
+            <h3>Logging with Trace Context</h3>
+            <p>Automatically include trace IDs in your logs:</p>
+            <div class="code-box">import { createLoggerWithTrace } from "./logger.js";
+
+const log = createLoggerWithTrace({ userId: 123 });
+log.info("User action completed");
+
+// Output includes trace_id and span_id automatically:
+// {
+//   "trace_id": "7f8a9b2c3d4e5f6a7b8c9d0e1f2a3b4c",
+//   "span_id": "1a2b3c4d5e6f7a8b",
+//   "userId": 123,
+//   "msg": "User action completed"
+// }</div>
+        </div>
+    </div>
+
+    <script>
+        async function makeTracedRequest() {
+            const output = document.getElementById('response-output');
+            output.innerHTML = '<p>Making request...</p>';
+
+            try {
+                const response = await fetch('/items/v1/items');
+                const data = await response.json();
+
+                output.innerHTML = \`
+                    <h4>✅ Request Successful!</h4>
+                    <div class="info-box">
+                        <p><strong>Status:</strong> \${response.status}</p>
+                        <p><strong>Items Count:</strong> \${data.items?.length || 0}</p>
+                        <p><strong>Next Steps:</strong></p>
+                        <ol>
+                            <li>Check the browser console for trace information</li>
+                            <li>View logs: <code>kubectl logs -n default deployment/items-service --tail=20</code></li>
+                            <li>Open <a href="/jaeger" target="_blank">Jaeger UI</a> and search for recent traces</li>
+                        </ol>
+                    </div>
+                    <div class="code-box">\${JSON.stringify(data, null, 2)}</div>
+                \`;
+
+                console.log('Response:', data);
+                console.log('Check Jaeger for trace: /jaeger');
+            } catch (error) {
+                output.innerHTML = \`
+                    <div class="warning-box">
+                        <h4>❌ Request Failed</h4>
+                        <p>\${error.message}</p>
+                    </div>
+                \`;
+            }
+        }
+
+        async function makeHealthCheck() {
+            const output = document.getElementById('response-output');
+            output.innerHTML = '<p>Checking health...</p>';
+
+            try {
+                const response = await fetch('/items/v1/health');
+                const data = await response.json();
+
+                output.innerHTML = \`
+                    <h4>✅ Health Check Complete!</h4>
+                    <div class="info-box">
+                        <p><strong>Status:</strong> \${data.status}</p>
+                        <p><strong>Database:</strong> \${data.database}</p>
+                        <p><strong>Commit:</strong> \${data.commit}</p>
+                    </div>
+                    <div class="code-box">\${JSON.stringify(data, null, 2)}</div>
+                \`;
+            } catch (error) {
+                output.innerHTML = \`
+                    <div class="warning-box">
+                        <h4>❌ Health Check Failed</h4>
+                        <p>\${error.message}</p>
+                    </div>
+                \`;
+            }
+        }
+
+        async function createItem() {
+            const output = document.getElementById('response-output');
+            output.innerHTML = '<p>Creating item...</p>';
+
+            const itemName = \`Test Item \${new Date().toISOString()}\`;
+
+            try {
+                const response = await fetch('/items/v1/items', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ name: itemName })
+                });
+                const data = await response.json();
+
+                output.innerHTML = \`
+                    <h4>✅ Item Created!</h4>
+                    <div class="info-box">
+                        <p><strong>ID:</strong> \${data.id}</p>
+                        <p><strong>Name:</strong> \${data.name}</p>
+                        <p>This request created multiple spans:</p>
+                        <ul>
+                            <li>HTTP POST span</li>
+                            <li>createItem business logic span</li>
+                            <li>Database INSERT span</li>
+                        </ul>
+                        <p>View them all in <a href="/jaeger" target="_blank">Jaeger</a>!</p>
+                    </div>
+                    <div class="code-box">\${JSON.stringify(data, null, 2)}</div>
+                \`;
+            } catch (error) {
+                output.innerHTML = \`
+                    <div class="warning-box">
+                        <h4>❌ Failed to Create Item</h4>
+                        <p>\${error.message}</p>
+                    </div>
+                \`;
+            }
+        }
     </script>
 </body>
 </html>`;

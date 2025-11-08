@@ -14,6 +14,14 @@ data:
         url: http://prometheus:9090
         isDefault: true
         editable: true
+      - name: Loki
+        type: loki
+        access: proxy
+        url: http://loki:3100
+        isDefault: false
+        editable: true
+        jsonData:
+          maxLines: 1000
 
 ---
 apiVersion: v1
@@ -24,82 +32,14 @@ metadata:
 data:
   dashboards.yaml: |
     apiVersion: 1
-    providers:
-      - name: 'default'
-        orgId: 1
-        folder: ''
-        type: file
-        disableDeletion: false
-        updateIntervalSeconds: 10
-        allowUiUpdates: true
-        options:
-          path: /var/lib/grafana/dashboards
+    providers: []
+    # Dashboard provisioning disabled - import manually from:
+    # infra/k8s/observability/grafana-dashboard-items-service.json
 
 ---
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: grafana-dashboard-items-service
-  namespace: default
-data:
-  items-service.json: |
-    {
-      "dashboard": {
-        "title": "Items Service Metrics",
-        "tags": ["items-service"],
-        "timezone": "browser",
-        "panels": [
-          {
-            "id": 1,
-            "title": "HTTP Request Rate",
-            "type": "graph",
-            "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
-            "targets": [
-              {
-                "expr": "rate(http_server_requests_total[5m])",
-                "legendFormat": "{{method}} {{route}}"
-              }
-            ]
-          },
-          {
-            "id": 2,
-            "title": "HTTP Request Duration (p95)",
-            "type": "graph",
-            "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
-            "targets": [
-              {
-                "expr": "histogram_quantile(0.95, rate(http_server_duration_bucket[5m]))",
-                "legendFormat": "{{method}} {{route}}"
-              }
-            ]
-          },
-          {
-            "id": 3,
-            "title": "Total Requests",
-            "type": "stat",
-            "gridPos": {"h": 4, "w": 6, "x": 0, "y": 8},
-            "targets": [
-              {
-                "expr": "sum(http_server_requests_total)"
-              }
-            ]
-          },
-          {
-            "id": 4,
-            "title": "Average Response Time",
-            "type": "stat",
-            "gridPos": {"h": 4, "w": 6, "x": 6, "y": 8},
-            "targets": [
-              {
-                "expr": "avg(rate(http_server_duration_sum[5m]) / rate(http_server_duration_count[5m]))"
-              }
-            ]
-          }
-        ],
-        "refresh": "5s",
-        "time": {"from": "now-15m", "to": "now"}
-      }
-    }
+# Dashboard ConfigMap removed - import manually from:
+# infra/k8s/observability/grafana-dashboard-items-service.json
+# This prevents Grafana restart loops due to provisioning errors
 
 ---
 apiVersion: apps/v1
@@ -150,8 +90,6 @@ spec:
           mountPath: /etc/grafana/provisioning/datasources
         - name: grafana-dashboards-config
           mountPath: /etc/grafana/provisioning/dashboards
-        - name: grafana-dashboard-items-service
-          mountPath: /var/lib/grafana/dashboards
         - name: grafana-storage
           mountPath: /var/lib/grafana
         resources:
@@ -180,9 +118,6 @@ spec:
       - name: grafana-dashboards-config
         configMap:
           name: grafana-dashboards-config
-      - name: grafana-dashboard-items-service
-        configMap:
-          name: grafana-dashboard-items-service
       - name: grafana-storage
         emptyDir: {}
 

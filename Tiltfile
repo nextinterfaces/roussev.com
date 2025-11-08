@@ -78,6 +78,31 @@ k8s_resource(
     ]
 )
 
+# Deploy Loki for log aggregation
+k8s_yaml('infra/k8s/local/loki-local.yaml')
+
+# Configure Loki resource
+k8s_resource(
+    'loki',
+    port_forwards='3100:3100',
+    labels=['observability'],
+    resource_deps=[],
+    links=[
+        link('http://localhost:3100', 'Loki API'),
+        link('http://localhost:3100/ready', 'Loki Health'),
+    ]
+)
+
+# Deploy Promtail for log collection
+k8s_yaml('infra/k8s/local/promtail-local.yaml')
+
+# Configure Promtail resource
+k8s_resource(
+    'promtail',
+    labels=['observability'],
+    resource_deps=['loki'],
+)
+
 # Deploy Grafana for metrics visualization
 k8s_yaml('infra/k8s/local/grafana-local.yaml')
 
@@ -86,7 +111,7 @@ k8s_resource(
     'grafana',
     port_forwards='3000:3000',
     labels=['observability'],
-    resource_deps=['prometheus'],
+    resource_deps=['prometheus', 'loki'],
     links=[
         link('http://localhost:3000', 'Grafana UI'),
     ]
@@ -178,7 +203,8 @@ Services will be available at:
   📊 Observability:
      - Jaeger UI:     http://localhost:16686
      - Prometheus:    http://localhost:9090
-     - Grafana:       http://localhost:3000
+     - Loki:          http://localhost:3100
+     - Grafana:       http://localhost:3000 (Metrics + Logs)
 
 Press 'space' to open Tilt UI in your browser
 Press 'q' to quit

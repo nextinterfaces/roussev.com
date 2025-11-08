@@ -258,11 +258,33 @@ tasks:
       - echo "Public viewing enabled (Viewer role)"
       - echo "Admin login - admin/admin"
 
+  deploy:loki:
+    desc: Deploy Loki for log aggregation
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/observability/loki-deployment.yaml
+      - echo "Loki deployed"
+      - echo "Waiting for rollout to complete..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/loki --timeout=120s
+      - echo ""
+      - echo "Loki API available at https://app.roussev.com/loki"
+
+  deploy:promtail:
+    desc: Deploy Promtail for log collection
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/observability/promtail-deployment.yaml
+      - echo "Promtail deployed"
+      - echo "Waiting for rollout to complete..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status daemonset/promtail --timeout=120s
+      - echo ""
+      - echo "Promtail collecting logs from all pods"
+
   deploy:observability:
-    desc: Deploy full observability stack (Jaeger, Prometheus, Grafana)
+    desc: Deploy full observability stack (Jaeger, Prometheus, Loki, Grafana)
     cmds:
       - task: deploy:jaeger
       - task: deploy:prometheus
+      - task: deploy:loki
+      - task: deploy:promtail
       - task: deploy:grafana
 
   # Rollout tasks

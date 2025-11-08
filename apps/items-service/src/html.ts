@@ -32,6 +32,25 @@ export function getRootPageHtml(): string {
     <meta name="color-scheme" content="light dark">
     <title>Items Service</title>
     <link rel="stylesheet" href="https://roussev.com/styles.css">
+    <style>
+        .architecture-diagram {
+            margin: 2rem 0;
+            padding: 1.5rem;
+            background: var(--bg-secondary, #f5f5f5);
+            border-radius: 8px;
+            overflow-x: auto;
+        }
+        .architecture-diagram h2 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            color: var(--text-primary, #333);
+        }
+        @media (prefers-color-scheme: dark) {
+            .architecture-diagram {
+                background: var(--bg-secondary, #1a1a1a);
+            }
+        }
+    </style>
 </head>
 <body>
     <div class="profile-container">
@@ -42,7 +61,7 @@ export function getRootPageHtml(): string {
         <article class="profile-content">
             <h1>Items Service</h1>
 
-            <p>A simple REST API service for managing items, built with Bun, Postgre, Jaeger and OpenTelemetry.</p>
+            <p>A simple REST service built with Bun, Postgre and OpenTelemetry.</p>
 
             <p><strong>Observability:</strong></p>
             <p><a href="/grafana/d/items-service-metrics/items-service-metrics" target="_blank">Grafana</a> - Metrics dashboard</p>
@@ -56,8 +75,82 @@ export function getRootPageHtml(): string {
             <p><strong>API Endpoints:</strong></p>
             <p><a href="/items/v1/health" target="_blank">/v1/health</a> - Service and database health check</p>
             <p><a href="/items/v1/items" target="_blank">/v1/items</a> - List all items</p>
+
+            <div class="architecture-diagram">
+                <h2>Architecture</h2>
+                <pre class="mermaid">
+graph TB
+    %% Client
+    subgraph ClientLayer["Client Layer"]
+        Client[HTTP Client]
+    end
+
+    %% Application
+    subgraph AppLayer["Application Layer"]
+        App[items-service]
+        ItemsEndpoint[/items endpoint/]
+        MetricsEndpoint[/metrics endpoint/]
+        OTel[OpenTelemetry SDK]
+        Logs[Application Logs]
+    end
+
+    %% Data Layer
+    subgraph DataLayer["Data Layer"]
+        DB[(PostgreSQL Database)]
+    end
+
+    %% Observability
+    subgraph ObsLayer["Observability Stack"]
+        Prometheus[Prometheus Metrics]
+        Jaeger[Jaeger Tracing]
+        Grafana[Grafana Dashboards]
+        LogStore[Loki / OpenSearch / Elastic]
+    end
+
+    %% Request Flow
+    Client -->|HTTP requests| App
+    App --> ItemsEndpoint
+    ItemsEndpoint -->|SQL queries| DB
+
+    %% Metrics Flow
+    App --> MetricsEndpoint
+    Prometheus -.->|scrapes metrics| MetricsEndpoint
+    Grafana -.->|reads metrics| Prometheus
+
+    %% Tracing Flow
+    App -->|trace spans| OTel
+    OTel -->|OTLP| Jaeger
+    Grafana -.->|trace links| Jaeger
+
+    %% Logs Flow
+    App -->|stdout logs| Logs
+    Logs -.->|log agent| LogStore
+    Grafana -.->|logs query| LogStore
+
+    %% Styling
+    style App fill:#e85d04,stroke:#dc2f02,stroke-width:3px,color:#fff
+    style ItemsEndpoint fill:#ffba08,stroke:#faa307,stroke-width:2px,color:#000
+    style MetricsEndpoint fill:#ffba08,stroke:#faa307,stroke-width:2px,color:#000
+    style OTel fill:#f5a800,stroke:#d89000,stroke-width:2px,color:#000
+    style Logs fill:#6c757d,stroke:#495057,stroke-width:2px,color:#fff
+    style DB fill:#336791,stroke:#2d5a7b,stroke-width:2px,color:#fff
+    style Prometheus fill:#e6522c,stroke:#c93a1f,stroke-width:2px,color:#fff
+    style Jaeger fill:#60d0e4,stroke:#4db8ca,stroke-width:2px,color:#000
+    style Grafana fill:#f46800,stroke:#d85600,stroke-width:2px,color:#fff
+    style LogStore fill:#7cb342,stroke:#558b2f,stroke-width:2px,color:#fff
+
+                </pre>
+            </div>
         </article>
     </div>
+
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'
+        });
+    </script>
 </body>
 </html>`;
 }

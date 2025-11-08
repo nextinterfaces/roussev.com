@@ -47,11 +47,11 @@ export function getRootPageHtml(): string {
             <p><strong>Observability:</strong></p>
             <p><a href="/jaeger" target="_blank">Jaeger</a> - Distributed tracing</p>
             <p><a href="/prometheus" target="_blank">Prometheus</a> - Metrics collection</p>
-            <p><a href="https://app.roussev.com/grafana/d/a7333118-220b-4389-b277-3d79b0605970/items-service-dashboard?orgId=1" target="_blank">Grafana</a></p>
+            <p><a href="https://app.roussev.com/grafana/d/a7333118-220b-4389-b277-3d79b0605970/items-service-dashboard?orgId=1" target="_blank">Grafana</a> - Metrics visualization</p>
             <p><a href="/items/metrics" target="_blank">Metrics Endpoint</a> - Raw Prometheus metrics</p>
 
             <p><strong>Documentation:</strong></p>
-            <p><a href="/items/docs" target="_blank">Swagger Docs</a> - Interactive API documentation</p>
+            <p><a href="/items/docs" target="_blank">Open API / Swagger Docs</a></p>
 
             <p><strong>API Endpoints:</strong></p>
             <p><a href="/items/v1/health" target="_blank">/v1/health</a> - Service and database health check</p>

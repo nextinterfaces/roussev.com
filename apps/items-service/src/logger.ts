@@ -64,7 +64,7 @@ export const logger = usePrettyPrint
           translateTime: "HH:MM:ss.l",
           ignore: "pid,hostname",
           singleLine: false,
-          messageFormat: "{levelLabel} - {msg}",
+          messageFormat: "{msg}",
         },
       })
     )

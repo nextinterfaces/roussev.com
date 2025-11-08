@@ -45,6 +45,13 @@ export function getRootPageHtml(): string {
             margin-bottom: 1rem;
             color: var(--text-primary, #333);
         }
+        .link-icon {
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+            margin-right: 8px;
+            display: inline-block;
+        }
         @media (prefers-color-scheme: dark) {
             .architecture-diagram {
                 background: var(--bg-secondary, #1a1a1a);
@@ -64,13 +71,32 @@ export function getRootPageHtml(): string {
             <p>A simple REST service built with Bun, Postgre and OpenTelemetry.</p>
 
             <p><strong>Observability:</strong></p>
-            <p><a href="/grafana/d/items-service-metrics/items-service-metrics" target="_blank">Grafana</a> - Metrics dashboard</p>
-            <p><a href="/items/prometheus-queries" target="_blank">Prometheus queries</a></p>
-            <p><a href="/items/metrics" target="_blank">Prometheus raw metrics</a></p>
-            <p><a href="/jaeger" target="_blank">Jaeger</a> - Distributed tracing</p>
+            <p>
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/grafana/grafana-original.svg" class="link-icon" alt="Grafana">
+                <a href="/grafana/d/items-service-metrics/items-service-metrics" target="_blank">Grafana</a> - Metrics dashboard
+            </p>
+            <p>
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/prometheus/prometheus-original.svg" class="link-icon" alt="Prometheus">
+                <a href="/items/prometheus-queries" target="_blank">Prometheus queries</a>
+            </p>
+            <p>
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/prometheus/prometheus-original.svg" class="link-icon" alt="Prometheus">
+                <a href="/items/metrics" target="_blank">Prometheus raw metrics</a>
+            </p>
+            <p>
+                <svg class="link-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L2 7L12 12L22 7L12 2Z" fill="#60D0E4"/>
+                    <path d="M2 17L12 22L22 17" stroke="#60D0E4" stroke-width="2"/>
+                    <path d="M2 12L12 17L22 12" stroke="#60D0E4" stroke-width="2"/>
+                </svg>
+                <a href="/jaeger" target="_blank">Jaeger</a> - Distributed tracing
+            </p>
 
             <p><strong>Docs:</strong></p>
-            <p><a href="/items/docs" target="_blank">Open API / Swagger Docs</a></p>
+            <p>
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg" class="link-icon" alt="Swagger">
+                <a href="/items/docs" target="_blank">Open API / Swagger Docs</a>
+            </p>
 
             <p><strong>API Endpoints:</strong></p>
             <p><a href="/items/v1/health" target="_blank">/v1/health</a> - Service and database health check</p>

@@ -45,10 +45,10 @@ export function getRootPageHtml(): string {
             <p>A simple REST API service for managing items, built with Bun, Postgre, Jaeger and OpenTelemetry.</p>
 
             <p><strong>Observability:</strong></p>
-            <p><a href="/jaeger" target="_blank">Jaeger</a> - Distributed tracing</p>
-            <p><a href="/prometheus" target="_blank">Prometheus</a> - Metrics collection</p>
             <p><a href="https://app.roussev.com/grafana/d/items-service-metrics/items-service-metrics" target="_blank">Grafana</a> - Metrics dashboard</p>
+            <p><a href="/jaeger" target="_blank">Jaeger</a> - Distributed tracing</p>
             <p><a href="/items/metrics" target="_blank">Metrics Endpoint</a> - Raw Prometheus metrics</p>
+            <p><a href="/prometheus" target="_blank">Prometheus</a> - Metrics collection</p>
 
             <p><strong>Documentation:</strong></p>
             <p><a href="/items/docs" target="_blank">Open API / Swagger Docs</a></p>

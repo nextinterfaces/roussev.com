@@ -128,17 +128,21 @@ graph TB
         Logs[Application Logs]
     end
 
-    %% Data Layer
-    subgraph DataLayer["Data Layer"]
-        DB[(PostgreSQL Database)]
-    end
-
     %% Observability
     subgraph ObsLayer["Observability Stack"]
         Prometheus[Prometheus Metrics]
         Jaeger[Jaeger Tracing]
         Grafana[Grafana Dashboards]
-        LogStore[Loki / OpenSearch / Elastic]
+
+        subgraph LogPipeline["Logs Pipeline"]
+            Promtail[Promtail / FluentBit Log Agent]
+            LogStore[Loki / OpenSearch / Elastic]
+        end
+    end
+
+    %% Data Layer (bottom)
+    subgraph DataLayer["Data Layer"]
+        DB[(PostgreSQL Database)]
     end
 
     %% Request Flow
@@ -158,7 +162,8 @@ graph TB
 
     %% Logs Flow
     App -->|stdout logs| Logs
-    Logs -.->|log agent| LogStore
+    Promtail -.->|reads logs| Logs
+    Promtail -->|pushes logs| LogStore
     Grafana -.->|logs query| LogStore
 
     %% Styling
@@ -167,11 +172,16 @@ graph TB
     style MetricsEndpoint fill:#ffba08,stroke:#faa307,stroke-width:2px,color:#000
     style OTel fill:#f5a800,stroke:#d89000,stroke-width:2px,color:#000
     style Logs fill:#6c757d,stroke:#495057,stroke-width:2px,color:#fff
+
     style DB fill:#336791,stroke:#2d5a7b,stroke-width:2px,color:#fff
+
     style Prometheus fill:#e6522c,stroke:#c93a1f,stroke-width:2px,color:#fff
     style Jaeger fill:#60d0e4,stroke:#4db8ca,stroke-width:2px,color:#000
     style Grafana fill:#f46800,stroke:#d85600,stroke-width:2px,color:#fff
+
+    style Promtail fill:#1f78b4,stroke:#145684,stroke-width:2px,color:#fff
     style LogStore fill:#7cb342,stroke:#558b2f,stroke-width:2px,color:#fff
+    style LogPipeline fill:#ffffff,stroke:#999,stroke-width:1px,color:#000
 
                 </pre>
             </div>

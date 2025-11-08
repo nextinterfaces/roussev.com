@@ -5,7 +5,7 @@
 
 import { trace, SpanStatusCode } from "@opentelemetry/api";
 import { HealthController, ItemsController } from "./controllers.js";
-import { getSwaggerHtml, getRootPageHtml } from "./html.js";
+import { getSwaggerHtml, getRootPageHtml, getPrometheusQueriesHtml } from "./html.js";
 import { openapi } from "./openapi.js";
 import { json, notFound, html } from "./http-utils.js";
 import type { ServerConfig } from "./config.js";
@@ -44,6 +44,13 @@ export class Router {
       method: "GET",
       path: "/docs",
       handler: () => html(getSwaggerHtml(this.config.appPrefix)),
+    });
+
+    // Prometheus queries dashboard
+    this.routes.push({
+      method: "GET",
+      path: "/prometheus-queries",
+      handler: () => html(getPrometheusQueriesHtml()),
     });
 
     // OpenAPI spec

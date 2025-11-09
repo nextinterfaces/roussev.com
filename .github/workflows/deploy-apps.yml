@@ -44,15 +44,18 @@ jobs:
           echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
           chmod 600 ~/.kube/config
 
-      - name: Apply K8s manifests
-        run: kubectl apply -f infra/k8s/apps/${{ matrix.app }}-deployment.yaml
-
-      - name: Detect namespace
+      - name: Detect namespace from manifest
         id: detect-namespace
         run: |
-          namespace=$(kubectl get deployment ${{ matrix.app }} -A -o jsonpath='{.items[0].metadata.namespace}' 2>/dev/null || echo "default")
+          namespace=$(grep -A 5 "kind: Deployment" infra/k8s/apps/${{ matrix.app }}-deployment.yaml | grep "namespace:" | head -1 | awk '{print $2}' || echo "default")
+          if [ -z "$namespace" ]; then
+            namespace="default"
+          fi
           echo "namespace=$namespace" >> $GITHUB_OUTPUT
           echo "Detected namespace: $namespace"
+
+      - name: Apply K8s manifests
+        run: kubectl apply -f infra/k8s/apps/${{ matrix.app }}-deployment.yaml
 
       - name: Check if app has custom image
         id: check-image

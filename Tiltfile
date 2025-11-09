@@ -185,7 +185,7 @@ k8s_resource(
 # Headlamp Kubernetes Dashboard
 # ============================================================================
 
-# Deploy headlamp
+# Deploy headlamp (admin)
 k8s_yaml('infra/k8s/local/headlamp-local.yaml')
 
 # Configure headlamp resource
@@ -195,7 +195,21 @@ k8s_resource(
     labels=['dashboard'],
     resource_deps=[],
     links=[
-        link('http://localhost:8083', 'Headlamp Dashboard'),
+        link('http://localhost:8083', 'Headlamp Admin'),
+    ]
+)
+
+# Deploy headlamp-readonly (public)
+k8s_yaml('infra/k8s/local/headlamp-readonly-local.yaml')
+
+# Configure headlamp-readonly resource
+k8s_resource(
+    'headlamp-readonly',
+    port_forwards='8084:4466',
+    labels=['dashboard'],
+    resource_deps=[],
+    links=[
+        link('http://localhost:8084', 'Headlamp Read-Only'),
     ]
 )
 
@@ -217,7 +231,8 @@ Services will be available at:
      - Metrics:       http://localhost:8081/metrics
   🌐 Website App:     http://localhost:8082
      - Health:        http://localhost:8082/health
-  🎛️  Headlamp:       http://localhost:8083
+  🎛️  Headlamp Admin: http://localhost:8083
+  👁️  Headlamp View:  http://localhost:8084 (Read-Only)
 
   📊 Observability:
      - Jaeger UI:     http://localhost:16686

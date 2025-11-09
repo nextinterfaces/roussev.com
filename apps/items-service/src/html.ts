@@ -52,9 +52,53 @@ export function getRootPageHtml(): string {
             margin-right: 8px;
             display: inline-block;
         }
+        .token-box {
+            display: inline-flex;
+            gap: 0.25rem;
+            align-items: center;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        .token-input {
+            width: 120px;
+            padding: 0.25rem 0.5rem;
+            font-family: monospace;
+            font-size: 0.7rem;
+            border: 1px solid var(--border-color, #ccc);
+            border-radius: 4px;
+            background: var(--bg-primary, white);
+            color: var(--text-primary, #333);
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .copy-btn {
+            padding: 0.25rem 0.75rem;
+            background: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            transition: background 0.2s;
+        }
+        .copy-btn:hover {
+            background: #0052a3;
+        }
+        .copy-btn:active {
+            background: #003d7a;
+        }
+        .copy-btn.copied {
+            background: #28a745;
+        }
         @media (prefers-color-scheme: dark) {
             .architecture-diagram {
                 background: var(--bg-secondary, #1a1a1a);
+            }
+            .token-input {
+                background: var(--bg-primary, #2a2a2a);
+                color: var(--text-primary, #e0e0e0);
+                border-color: var(--border-color, #444);
             }
         }
     </style>
@@ -104,6 +148,25 @@ export function getRootPageHtml(): string {
             <p>
                 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg" class="link-icon" alt="Swagger">
                 <a href="/items/docs" target="_blank">Open API / Swagger Docs</a>
+            </p>
+
+            <p><strong>Kubernetes Dashboard:</strong></p>
+            <p>
+                <svg class="link-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M10.9 2.1l-7.2 4.2v8.4l7.2 4.2 7.2-4.2V6.3L10.9 2.1zm5.5 11.8l-5.5 3.2-5.5-3.2V7.5l5.5-3.2 5.5 3.2v6.4z" fill="#326CE5"/>
+                    <circle cx="10.9" cy="10.9" r="2.5" fill="#326CE5"/>
+                </svg>
+                <a href="https://kube.roussev.com" target="_blank">Headlamp</a> - k8s readonly UI (copy token to access)
+                <span class="token-box">
+                    <input
+                        type="text"
+                        class="token-input"
+                        id="headlamp-token"
+                        value="eyJhbGciOiJSUzI1NiIsImtpZCI6IkYwNnVfdXZvVDdvbHhYZnVrTGhHLWg1ZEhZN1hoMHNCczEyWjBOUm5GU1EifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJrdWJlLXN5c3RlbSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VjcmV0Lm5hbWUiOiJoZWFkbGFtcC1yZWFkb25seSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50Lm5hbWUiOiJoZWFkbGFtcC1yZWFkb25seSIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6ImE0ZDg0ZGU4LWRmNTctNDg2ZC1hZjJkLWYyZTlhYTkxMGFlNiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDprdWJlLXN5c3RlbTpoZWFkbGFtcC1yZWFkb25seSJ9.Sr1CZT5gAXBtT6ERnbTEPsvuUxuhQ9HtqqykIHpnoWoSNSU363p4Hs4FJGQorEgen8ne0hH_cOOIhthy7djqFxN16ctHGEpzmGPmooOswK5fA0pSKBC6NWyfxiTjmvJVar6W7K7-unX7rIp6uPLI0ULZmPwqBx7ZgAbEbhBmNC0bxUFi2W7EqttRRhIeWcFIdfr9ww5M-1LJOLCb9Usnz6pPhW8QAIhZZ2looXEWT5zclRQc0JpkWpzWpoyG0pB2HRVMl-xlGytz1QMpD4kHuBC3gAcr5pZUco0DUIgpm8_7_yNuQ7mc9WWCJC8mEwaos1352a2cE_DwsOdhMdSIXQ"
+                        readonly
+                    />
+                    <button class="copy-btn" onclick="copyToken()">Copy</button>
+                </span>
             </p>
 
             <p><strong>API Endpoints:</strong></p>
@@ -194,6 +257,33 @@ graph TB
             startOnLoad: true,
             theme: window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'default'
         });
+    </script>
+
+    <script>
+        function copyToken() {
+            const tokenInput = document.getElementById('headlamp-token');
+            const copyBtn = event.target;
+
+            // Select and copy the token
+            tokenInput.select();
+            tokenInput.setSelectionRange(0, 99999); // For mobile devices
+
+            navigator.clipboard.writeText(tokenInput.value).then(() => {
+                // Change button text and style
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                copyBtn.classList.add('copied');
+
+                // Reset after 2 seconds
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.classList.remove('copied');
+                }, 2000);
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                alert('Failed to copy token. Please copy it manually.');
+            });
+        }
     </script>
 </body>
 </html>`;

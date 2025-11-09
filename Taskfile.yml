@@ -229,11 +229,20 @@ tasks:
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/apps/website-app-deployment.yaml
 
+  deploy:headlamp:
+    desc: Deploy Headlamp Kubernetes Dashboard
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/apps/headlamp-deployment.yaml
+      - echo "✅ Headlamp deployed"
+      - echo "Waiting for rollout to complete..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/headlamp -n kube-system --timeout=120s
+
   deploy:all:
     desc: Deploy all apps to Kubernetes
     cmds:
       - task: deploy:items-service
       - task: deploy:website-app
+      - task: deploy:headlamp
 
   deploy:items-service:with-postgres:
     desc: Deploy PostgreSQL and items-service together

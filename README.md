@@ -29,8 +29,7 @@ task local:start
      - Metrics:             http://localhost:8081/metrics
   🌐 Website App:           http://localhost:8082
      - Health:              http://localhost:8082/health
-  🎛️  Headlamp Admin:       http://localhost:8083
-  👁️  Headlamp Read-Only:   http://localhost:8084
+  👁️  Headlamp (Read-Only):  http://localhost:8084
   📊 Jaeger UI:             http://localhost:16686
   📦 PostgreSQL:            localhost:5432
      - Connection:          psql postgresql://{.env.POSTGRES_USER}:{.env.POSTGRES_PASSWORD}@localhost:5432/
@@ -39,8 +38,7 @@ task local:start
 ## Production URLs
 
 - **Website**: https://roussev.com
-- **Headlamp Admin**: https://k8s.roussev.com (Full Access)
-- **Headlamp Public**: https://kube.roussev.com (Read-Only)
+- **Headlamp (Read-Only)**: https://kube.roussev.com
 - **Items API**: https://app.roussev.com/items
   - Health: https://app.roussev.com/items/v1/health
   - Docs: https://app.roussev.com/items/docs

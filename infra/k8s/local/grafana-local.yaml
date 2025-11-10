@@ -134,11 +134,11 @@ spec:
         - containerPort: 3000
           name: http
         env:
-        # Anonymous access - read-only for public viewing
+        # Anonymous access - Editor role allows Explore page access
         - name: GF_AUTH_ANONYMOUS_ENABLED
           value: "true"
         - name: GF_AUTH_ANONYMOUS_ORG_ROLE
-          value: "Viewer"
+          value: "Editor"
         # Keep login form enabled for admin access
         - name: GF_AUTH_DISABLE_LOGIN_FORM
           value: "false"

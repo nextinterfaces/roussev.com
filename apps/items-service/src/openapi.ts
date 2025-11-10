@@ -1,7 +1,7 @@
 export const openapi = {
   openapi: "3.0.3",
   info: { title: "items API", version: "1.0.1", description: "Simple items service built with Bun" },
-  servers: [{ url: "/v1" }],
+  servers: [{ url: "/items/v1" }],
   paths: {
     "/health": {
       get: {

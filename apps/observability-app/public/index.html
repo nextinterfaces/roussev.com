@@ -19,6 +19,18 @@
             margin-bottom: 1rem;
             color: var(--text-primary, #333);
         }
+        .profile-header a {
+            color: var(--link-color, #0969da);
+            text-decoration: none;
+        }
+        .profile-header a:hover {
+            text-decoration: underline;
+        }
+        @media (prefers-color-scheme: dark) {
+            .profile-header a {
+                color: var(--link-color, #58a6ff);
+            }
+        }
         .link-icon {
             width: 20px;
             height: 20px;
@@ -79,9 +91,11 @@
 </head>
 <body>
     <div class="profile-container">
-        <article class="profile-content">
-            <p><a href="https://roussev.com" target="_blank">/root</a></p>
+        <div class="profile-header">
+            <a href="https://roussev.com" target="_blank">/root</a>
+        </div>
 
+        <article class="profile-content">
             <h1>Observability</h1>
 
             <p>This is an Observability experiment using Bun, Postgre and OpenTelemetry even more cool tech below 👇:</p>
@@ -137,7 +151,7 @@
             <p><strong>Swagger docs:</strong></p>
             <p>
                 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg" class="link-icon" alt="Swagger">
-                <a href="/items/docs" target="_blank">Open API</a> - the dummy service
+                <a href="/items/docs" target="_blank">Open API</a> of the dummy service
             </p>
 
             <div class="architecture-diagram">

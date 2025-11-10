@@ -30,7 +30,7 @@ export function getRootPageHtml(): string {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="color-scheme" content="light dark">
-    <title>Items Service</title>
+    <title>Observability experimentations</title>
     <link rel="stylesheet" href="https://roussev.com/styles.css">
     <style>
         .architecture-diagram {
@@ -110,11 +110,10 @@ export function getRootPageHtml(): string {
         </div>
 
         <article class="profile-content">
-            <h1>Items Service</h1>
+            <h1>Observability</h1>
 
-            <p>A simple REST service built with Bun, Postgre and OpenTelemetry.</p>
+            <p>This is an Observability experiment using Bun, Postgre and OpenTelemetry showcasing cool technologies below:</p>
 
-            <p><strong>Observability:</strong></p>
             <p>
                 <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/grafana/grafana-original.svg" class="link-icon" alt="Grafana">
                 <a href="/grafana/d/items-service-metrics/items-service-metrics" target="_blank">Grafana</a> - Metrics dashboard
@@ -144,12 +143,6 @@ export function getRootPageHtml(): string {
                 <a href="/grafana/explore?orgId=1&left=%7B%22datasource%22:%22loki%22,%22queries%22:%5B%7B%22refId%22:%22A%22,%22expr%22:%22%7Bapp%3D%5C%22items-service%5C%22%7D%22%7D%5D,%22range%22:%7B%22from%22:%22now-1h%22,%22to%22:%22now%22%7D%7D" target="_blank">Loki</a> - Log aggregation
             </p>
 
-            <p><strong>Docs:</strong></p>
-            <p>
-                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg" class="link-icon" alt="Swagger">
-                <a href="/items/docs" target="_blank">Open API / Swagger Docs</a>
-            </p>
-
             <p><strong>Kubernetes Dashboard:</strong></p>
             <p>
                 <svg class="link-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -169,9 +162,15 @@ export function getRootPageHtml(): string {
                 </span>
             </p>
 
-            <p><strong>API Endpoints:</strong></p>
-            <p><a href="/items/v1/health" target="_blank">/v1/health</a> - Service and database health check</p>
-            <p><a href="/items/v1/items" target="_blank">/v1/items</a> - List all items</p>
+
+            <p><strong>Dummy Service :</strong></p>
+            <p>
+                <img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/swagger/swagger-original.svg" class="link-icon" alt="Swagger">
+                <a href="/items/docs" target="_blank">Open API / Swagger Docs</a>
+            </p>
+<!--            <p><strong>API Endpoints:</strong></p>-->
+<!--            <p><a href="/items/v1/health" target="_blank">/v1/health</a> - Service and database health check</p>-->
+<!--            <p><a href="/items/v1/items" target="_blank">/v1/items</a> - List all items</p>-->
 
             <div class="architecture-diagram">
                 <h2>Architecture</h2>

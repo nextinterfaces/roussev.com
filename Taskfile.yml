@@ -47,14 +47,7 @@ tasks:
     cmds:
       - tilt logs
 
-  # Development tasks
   dev:items-service:
-    desc: Run items-service in development mode with hot reload
-    dir: apps/items-service
-    cmds:
-      - bun install && bun run dev
-
-  dev:items-service:postgres:
     desc: Run items-service locally with PostgreSQL connection (requires port-forward)
     dir: apps/items-service
     cmds:
@@ -78,27 +71,63 @@ tasks:
       - bun install && bun run dev
 
   dev:hello-service:
-    desc: Run hello-service in development mode with hot reload
-    dir: apps/hello-service
-    cmds:
-      - go run ./cmd/server
-
-  dev:hello-service:postgres:
-    desc: Run hello-service locally with PostgreSQL connection (requires port-forward)
+    desc: Run hello-service locally with Air + K8s PostgreSQL (auto port-forwards)
     dir: apps/hello-service
     cmds:
       - |
-        echo "Make sure PostgreSQL is port-forwarded: task postgres:port-forward"
-        echo "Loading credentials from .env..."
+        echo "🔥 Starting hello-service with Air hot reload + K8s PostgreSQL..."
+        echo "📝 Edit any .go file and see changes in ~1 second!"
+        echo ""
+
+        # Check if port-forward is already running
+        if lsof -Pi :5432 -sTCP:LISTEN -t >/dev/null 2>&1; then
+          echo "✅ PostgreSQL port-forward already running on localhost:5432"
+        else
+          echo "🔌 Starting PostgreSQL port-forward in background..."
+          kubectl port-forward svc/postgres 5432:5432 > /dev/null 2>&1 &
+          PF_PID=$!
+          echo "   Port-forward PID: $PF_PID"
+          sleep 2
+
+          # Verify port-forward is working
+          if ! lsof -Pi :5432 -sTCP:LISTEN -t >/dev/null 2>&1; then
+            echo "❌ Failed to start port-forward"
+            exit 1
+          fi
+          echo "✅ Port-forward established"
+        fi
+
+        echo ""
+        if ! command -v air &> /dev/null; then
+          echo "Installing Air..."
+          go install github.com/air-verse/air@latest
+        fi
+
         set -a
         source ../../.env
         set +a
+        export PORT=8090
         export DB_HOST=localhost
         export DB_PORT=5432
         export DB_USER=$POSTGRES_USER
         export DB_PASSWORD=$POSTGRES_PASSWORD
         export DB_NAME=$POSTGRES_DB
-        go run ./cmd/server
+        export DB_SSLMODE=disable
+        export OTEL_ENABLED=false
+
+        echo "🚀 Starting Air hot reload on port 8090..."
+        echo "   http://localhost:8090/health"
+        echo "   http://localhost:8090/v1/greetings"
+        echo ""
+        air -c .air.toml
+
+#  dev:stop-port-forwards:
+#    desc: Stop all kubectl port-forward processes
+#    cmds:
+#      - |
+#        echo "🛑 Stopping all kubectl port-forward processes..."
+#        pkill -f "kubectl port-forward" || echo "No port-forwards running"
+#        echo "✅ Done"
 
   # Docker tasks
   docker:build:items-service:
@@ -443,20 +472,20 @@ tasks:
       - docker rmi items-service:local website-app:local hello-service:local || true
 
   # Port forwarding tasks
-  port-forward:items-service:
-    desc: Port forward to items-service pod
-    cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/items-service 8080:80
+#  port-forward:items-service:
+#    desc: Port forward to items-service pod
+#    cmds:
+#      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/items-service 8080:80
 
-  port-forward:website-app:
-    desc: Port forward to website-app pod
-    cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/website-app 8080:80
+#  port-forward:website-app:
+#    desc: Port forward to website-app pod
+#    cmds:
+#      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/website-app 8080:80
 
-  port-forward:hello-service:
-    desc: Port forward to hello-service pod
-    cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/hello-service 8080:80
+#  port-forward:hello-service:
+#    desc: Port forward to hello-service pod
+#    cmds:
+#      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/hello-service 8080:80
 
   # SSH tasks
   ssh:

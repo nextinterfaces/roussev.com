@@ -47,8 +47,12 @@ func (h *Handler) ServeSwaggerUI(c echo.Context) error {
     <script src="https://unpkg.com/swagger-ui-dist@5.10.5/swagger-ui-standalone-preset.js"></script>
     <script>
         window.onload = function() {
+            // Get the base path from the current URL
+            const basePath = window.location.pathname.replace(/\/docs$/, '');
+            const specUrl = basePath + '/api/openapi.yaml';
+
             const ui = SwaggerUIBundle({
-                url: "/api/openapi.yaml",
+                url: specUrl,
                 dom_id: '#swagger-ui',
                 deepLinking: true,
                 presets: [

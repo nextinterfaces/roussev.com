@@ -29,6 +29,9 @@ WORKDIR /app
 # Copy binary from builder
 COPY --from=builder /app/server .
 
+# Copy API documentation files
+COPY --from=builder /app/api ./api
+
 # Expose port
 EXPOSE 8080
 

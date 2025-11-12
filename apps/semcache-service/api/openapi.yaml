@@ -16,10 +16,6 @@ info:
     url: https://github.com/nextinterfaces/semcache-service
 
 servers:
-  - url: http://localhost:8083
-    description: Local development (Tilt)
-  - url: http://localhost:8090
-    description: Local development (Air hot reload)
   - url: https://app.roussev.com/semcache
     description: Production
 

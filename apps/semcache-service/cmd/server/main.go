@@ -11,10 +11,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
-	"github.com/nextinterfaces/hello-service/internal/config"
-	"github.com/nextinterfaces/hello-service/internal/database"
-	"github.com/nextinterfaces/hello-service/internal/handlers"
-	"github.com/nextinterfaces/hello-service/internal/models"
+	"github.com/nextinterfaces/semcache-service/internal/config"
+	"github.com/nextinterfaces/semcache-service/internal/database"
+	"github.com/nextinterfaces/semcache-service/internal/handlers"
+	"github.com/nextinterfaces/semcache-service/internal/models"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -35,7 +35,7 @@ func run() error {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	log.Printf("Starting hello-service on port %d", cfg.Server.Port)
+	log.Printf("Starting semcache-service on port %d", cfg.Server.Port)
 	log.Printf("Commit SHA: %s", cfg.Server.CommitSHA)
 
 	// Initialize OpenTelemetry if enabled

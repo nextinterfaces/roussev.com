@@ -1,4 +1,4 @@
-module github.com/nextinterfaces/hello-service
+module github.com/nextinterfaces/semcache-service
 
 go 1.25
 

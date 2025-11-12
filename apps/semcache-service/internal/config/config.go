@@ -69,7 +69,7 @@ func Load() (*Config, error) {
 		OTEL: OTELConfig{
 			Enabled:     otelEnabled,
 			Endpoint:    getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4318"),
-			ServiceName: getEnv("OTEL_SERVICE_NAME", "hello-service"),
+			ServiceName: getEnv("OTEL_SERVICE_NAME", "semcache-service"),
 		},
 	}, nil
 }

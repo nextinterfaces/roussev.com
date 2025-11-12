@@ -8,7 +8,7 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/nextinterfaces/hello-service/internal/models"
+	"github.com/nextinterfaces/semcache-service/internal/models"
 )
 
 type Handler struct {

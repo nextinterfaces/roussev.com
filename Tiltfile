@@ -182,25 +182,25 @@ k8s_resource(
 )
 
 # ============================================================================
-# Hello Service (Go + Echo)
+# Semcache Service (Go + Echo)
 # ============================================================================
 
-# Build Docker image for hello-service (using dev Dockerfile with hot reload)
+# Build Docker image for semcache-service (using dev Dockerfile with hot reload)
 docker_build(
-    'hello-service',
-    context='./apps/hello-service',
-    dockerfile='./apps/hello-service/Dockerfile.dev',
+    'semcache-service',
+    context='./apps/semcache-service',
+    dockerfile='./apps/semcache-service/Dockerfile.dev',
     live_update=[
-        sync('./apps/hello-service', '/app'),
+        sync('./apps/semcache-service', '/app'),
     ]
 )
 
-# Deploy hello-service
-k8s_yaml('infra/k8s/local/hello-service-local.yaml')
+# Deploy semcache-service
+k8s_yaml('infra/k8s/local/semcache-service-local.yaml')
 
-# Configure hello-service resource
+# Configure semcache-service resource
 k8s_resource(
-    'hello-service',
+    'semcache-service',
     port_forwards='8083:8080',
     labels=['apps'],
     resource_deps=['postgres', 'jaeger', 'prometheus'],

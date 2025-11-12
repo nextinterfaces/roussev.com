@@ -8,7 +8,7 @@ import (
 	"time"
 
 	_ "github.com/lib/pq"
-	"github.com/nextinterfaces/hello-service/internal/config"
+	"github.com/nextinterfaces/semcache-service/internal/config"
 )
 
 // DB wraps the database connection

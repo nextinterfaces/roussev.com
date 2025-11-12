@@ -1,24 +1,23 @@
-# Hello Service for local development
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: hello-service
+  name: semcache-service
   namespace: default
   labels:
-    app: hello-service
+    app: semcache-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: hello-service
+      app: semcache-service
   template:
     metadata:
       labels:
-        app: hello-service
+        app: semcache-service
     spec:
       containers:
-      - name: hello-service
-        image: hello-service
+      - name: semcache-service
+        image: ghcr.io/nextinterfaces/semcache-service:latest
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 8080
@@ -27,7 +26,7 @@ spec:
         - name: PORT
           value: "8080"
         - name: COMMIT_SHA
-          value: "local-dev"
+          value: "unknown"
         # PostgreSQL connection
         - name: DB_HOST
           value: "postgres"
@@ -56,34 +55,36 @@ spec:
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
           value: "jaeger:4318"
         - name: OTEL_SERVICE_NAME
-          value: "hello-service"
+          value: "semcache-service"
         resources:
           requests:
             memory: "64Mi"
             cpu: "50m"
           limits:
-            memory: "128Mi"
-            cpu: "200m"
+            memory: "256Mi"
+            cpu: "500m"
         livenessProbe:
           httpGet:
             path: /health
             port: 8080
           initialDelaySeconds: 10
           periodSeconds: 10
+          timeoutSeconds: 5
         readinessProbe:
           httpGet:
             path: /health
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
+          timeoutSeconds: 3
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: hello-service
+  name: semcache-service
   namespace: default
   labels:
-    app: hello-service
+    app: semcache-service
 spec:
   type: ClusterIP
   ports:
@@ -92,5 +93,5 @@ spec:
     protocol: TCP
     name: http
   selector:
-    app: hello-service
+    app: semcache-service
 

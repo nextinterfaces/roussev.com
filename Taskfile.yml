@@ -70,12 +70,12 @@ tasks:
     cmds:
       - bun install && bun run dev
 
-  dev:hello-service:
-    desc: Run hello-service locally with Air + K8s PostgreSQL (auto port-forwards)
-    dir: apps/hello-service
+  dev:semcache-service:
+    desc: Run semcache-service locally with Air + K8s PostgreSQL (auto port-forwards)
+    dir: apps/semcache-service
     cmds:
       - |
-        echo "🔥 Starting hello-service with Air hot reload + K8s PostgreSQL..."
+        echo "🔥 Starting semcache-service with Air hot reload + K8s PostgreSQL..."
         echo "📝 Edit any .go file and see changes in ~1 second!"
         echo ""
 
@@ -140,17 +140,17 @@ tasks:
     cmds:
       - docker build -t website-app:local ./apps/website-app
 
-  docker:build:hello-service:
-    desc: Build Docker image for hello-service
+  docker:build:semcache-service:
+    desc: Build Docker image for semcache-service
     cmds:
-      - docker build -t hello-service:local ./apps/hello-service
+      - docker build -t semcache-service:local ./apps/semcache-service
 
   docker:build:all:
     desc: Build Docker images for all apps
     cmds:
       - task: docker:build:items-service
       - task: docker:build:website-app
-      - task: docker:build:hello-service
+      - task: docker:build:semcache-service
 
   docker:run:items-service:
     desc: Run items-service Docker container locally
@@ -162,10 +162,10 @@ tasks:
     cmds:
       - docker run --rm -p 8080:8080 website-app:local
 
-  docker:run:hello-service:
-    desc: Run hello-service Docker container locally
+  docker:run:semcache-service:
+    desc: Run semcache-service Docker container locally
     cmds:
-      - docker run --rm -p 8080:8080 hello-service:local
+      - docker run --rm -p 8080:8080 semcache-service:local
 
   # Terraform tasks
   tf:init:
@@ -268,10 +268,10 @@ tasks:
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} logs -l app=website-app --tail=100 -f
 
-  k8s:logs:hello-service:
-    desc: Get logs from hello-service
+  k8s:logs:semcache-service:
+    desc: Get logs from semcache-service
     cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} logs -l app=hello-service --tail=100 -f
+      - kubectl --kubeconfig={{.KUBECONFIG}} logs -l app=semcache-service --tail=100 -f
 
   k8s:describe:items-service:
     desc: Describe items-service deployment
@@ -283,10 +283,10 @@ tasks:
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} describe deployment website-app
 
-  k8s:describe:hello-service:
-    desc: Describe hello-service deployment
+  k8s:describe:semcache-service:
+    desc: Describe semcache-service deployment
     cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} describe deployment hello-service
+      - kubectl --kubeconfig={{.KUBECONFIG}} describe deployment semcache-service
 
   # Deployment tasks
   deploy:items-service:
@@ -302,13 +302,13 @@ tasks:
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/apps/website-app-deployment.yaml
 
-  deploy:hello-service:
-    desc: Deploy hello-service to Kubernetes
+  deploy:semcache-service:
+    desc: Deploy semcache-service to Kubernetes
     cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/apps/hello-service-deployment.yaml
-      - echo "✅ hello-service deployed"
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/apps/semcache-service-deployment.yaml
+      - echo "✅ semcache-service deployed"
       - echo "Waiting for rollout to complete..."
-      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/hello-service --timeout=120s
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/semcache-service --timeout=120s
 
   deploy:headlamp-readonly:
     desc: Deploy Headlamp Kubernetes Dashboard (Read-Only Public)
@@ -323,7 +323,7 @@ tasks:
     cmds:
       - task: deploy:items-service
       - task: deploy:website-app
-      - task: deploy:hello-service
+      - task: deploy:semcache-service
       - task: deploy:headlamp-readonly
 
   deploy:items-service:with-postgres:
@@ -417,10 +417,10 @@ tasks:
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} rollout restart deployment/website-app
 
-  rollout:restart:hello-service:
-    desc: Restart hello-service deployment
+  rollout:restart:semcache-service:
+    desc: Restart semcache-service deployment
     cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} rollout restart deployment/hello-service
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout restart deployment/semcache-service
 
   rollout:status:items-service:
     desc: Check rollout status for items-service
@@ -432,10 +432,10 @@ tasks:
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/website-app
 
-  rollout:status:hello-service:
-    desc: Check rollout status for hello-service
+  rollout:status:semcache-service:
+    desc: Check rollout status for semcache-service
     cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/hello-service
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/semcache-service
 
   # DNS and networking tasks
   dns:clear-cache:
@@ -461,15 +461,15 @@ tasks:
     cmds:
       - curl -s https://roussev.com/health | jq
 
-  health:hello-service:
-    desc: Check health of hello-service (local)
+  health:semcache-service:
+    desc: Check health of semcache-service (local)
     cmds:
-      - curl -s https://app.roussev.com/hello/v1/health | jq
+      - curl -s https://app.roussev.com/semcache/v1/health | jq
 
   clean:docker:
     desc: Clean Docker images
     cmds:
-      - docker rmi items-service:local website-app:local hello-service:local || true
+      - docker rmi items-service:local website-app:local semcache-service:local || true
 
   # Port forwarding tasks
 #  port-forward:items-service:
@@ -482,10 +482,10 @@ tasks:
 #    cmds:
 #      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/website-app 8080:80
 
-#  port-forward:hello-service:
-#    desc: Port forward to hello-service pod
+#  port-forward:semcache-service:
+#    desc: Port forward to semcache-service pod
 #    cmds:
-#      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/hello-service 8080:80
+#      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/semcache-service 8080:80
 
   # SSH tasks
   ssh:

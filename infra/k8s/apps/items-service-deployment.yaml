@@ -111,7 +111,7 @@ spec:
   tls:
   - hosts:
     - app.roussev.com
-    secretName: items-service-tls
+    secretName: app-roussev-com-tls
   rules:
   - host: app.roussev.com
     http:

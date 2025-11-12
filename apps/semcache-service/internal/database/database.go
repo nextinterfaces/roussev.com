@@ -46,12 +46,19 @@ func New(cfg *config.DatabaseConfig) (*DB, error) {
 // InitSchema initializes the database schema
 func (db *DB) InitSchema(ctx context.Context) error {
 	query := `
-		CREATE TABLE IF NOT EXISTS greetings (
+		CREATE TABLE IF NOT EXISTS semcache (
 			id SERIAL PRIMARY KEY,
-			name VARCHAR(255) NOT NULL,
-			message TEXT NOT NULL,
-			created_at TIMESTAMP NOT NULL DEFAULT NOW()
+			key VARCHAR(255) NOT NULL,
+			value TEXT NOT NULL,
+			metadata TEXT,
+			created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+			expires_at TIMESTAMP,
+			CONSTRAINT unique_key UNIQUE (key)
 		);
+
+		CREATE INDEX IF NOT EXISTS idx_semcache_key ON semcache(key);
+		CREATE INDEX IF NOT EXISTS idx_semcache_expires_at ON semcache(expires_at);
+		CREATE INDEX IF NOT EXISTS idx_semcache_metadata ON semcache(metadata);
 	`
 
 	_, err := db.ExecContext(ctx, query)

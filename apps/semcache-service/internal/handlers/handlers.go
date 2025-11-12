@@ -2,9 +2,7 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"net/http"
-	"strconv"
 	"time"
 
 	"github.com/labstack/echo/v4"
@@ -12,14 +10,14 @@ import (
 )
 
 type Handler struct {
-	greetingRepo *models.GreetingRepository
-	commitSHA    string
+	cacheRepo *models.CacheRepository
+	commitSHA string
 }
 
-func New(greetingRepo *models.GreetingRepository, commitSHA string) *Handler {
+func New(cacheRepo *models.CacheRepository, commitSHA string) *Handler {
 	return &Handler{
-		greetingRepo: greetingRepo,
-		commitSHA:    commitSHA,
+		cacheRepo: cacheRepo,
+		commitSHA: commitSHA,
 	}
 }
 
@@ -35,7 +33,7 @@ func (h *Handler) Health(c echo.Context) error {
 	defer cancel()
 
 	dbStatus := "healthy"
-	_, err := h.greetingRepo.GetAll(ctx)
+	err := h.cacheRepo.HealthCheck(ctx)
 	if err != nil {
 		dbStatus = "unhealthy"
 	}
@@ -50,65 +48,56 @@ func (h *Handler) Health(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
-func (h *Handler) CreateGreeting(c echo.Context) error {
-	var req models.CreateGreetingRequest
+func (h *Handler) Create(c echo.Context) error {
+	var req models.CreateRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
 			"error": "Invalid request body",
 		})
 	}
 
-	if req.Name == "" {
+	if req.Key == "" {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Name is required",
+			"error": "Key is required",
+		})
+	}
+
+	if req.Value == "" {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Value is required",
 		})
 	}
 
 	ctx, cancel := context.WithTimeout(c.Request().Context(), 5*time.Second)
 	defer cancel()
 
-	greeting, err := h.greetingRepo.Create(ctx, req.Name)
+	entry, err := h.cacheRepo.Create(ctx, req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to create greeting",
+			"error": "Failed to create cache entry",
 		})
 	}
 
-	return c.JSON(http.StatusCreated, greeting)
+	return c.JSON(http.StatusCreated, entry)
 }
 
-func (h *Handler) GetGreetings(c echo.Context) error {
+func (h *Handler) Search(c echo.Context) error {
+	var req models.SearchRequest
+	if err := c.Bind(&req); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"error": "Invalid request body",
+		})
+	}
+
 	ctx, cancel := context.WithTimeout(c.Request().Context(), 5*time.Second)
 	defer cancel()
 
-	greetings, err := h.greetingRepo.GetAll(ctx)
+	entries, err := h.cacheRepo.Search(ctx, req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]string{
-			"error": "Failed to retrieve greetings",
+			"error": "Failed to search cache entries",
 		})
 	}
 
-	return c.JSON(http.StatusOK, greetings)
-}
-
-func (h *Handler) GetGreeting(c echo.Context) error {
-	idStr := c.Param("id")
-	id, err := strconv.Atoi(idStr)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, map[string]string{
-			"error": "Invalid greeting ID",
-		})
-	}
-
-	ctx, cancel := context.WithTimeout(c.Request().Context(), 5*time.Second)
-	defer cancel()
-
-	greeting, err := h.greetingRepo.GetByID(ctx, id)
-	if err != nil {
-		return c.JSON(http.StatusNotFound, map[string]string{
-			"error": fmt.Sprintf("record %d not found", id),
-		})
-	}
-
-	return c.JSON(http.StatusOK, greeting)
+	return c.JSON(http.StatusOK, entries)
 }

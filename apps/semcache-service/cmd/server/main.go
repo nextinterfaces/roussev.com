@@ -65,10 +65,10 @@ func run() error {
 	}
 
 	// Create repositories
-	greetingRepo := models.NewGreetingRepository(db.DB)
+	cacheRepo := models.NewCacheRepository(db.DB)
 
 	// Create handlers
-	h := handlers.New(greetingRepo, cfg.Server.CommitSHA)
+	h := handlers.New(cacheRepo, cfg.Server.CommitSHA)
 
 	// Create Echo instance
 	e := echo.New()
@@ -82,12 +82,15 @@ func run() error {
 	// Routes
 	e.GET("/health", h.Health)
 	e.GET("/v1/health", h.Health)
-	
+
+	// API Documentation routes
+	e.GET("/docs", h.ServeSwaggerUI)
+	e.GET("/api/openapi.yaml", h.ServeOpenAPISpec)
+
 	// API routes
 	api := e.Group("/v1")
-	api.GET("/greetings", h.GetGreetings)
-	api.POST("/greetings", h.CreateGreeting)
-	api.GET("/greetings/:id", h.GetGreeting)
+	api.POST("/create", h.Create)
+	api.POST("/search", h.Search)
 
 	// Start server in a goroutine
 	go func() {
@@ -99,7 +102,10 @@ func run() error {
 
 	log.Printf("Server started successfully on port %d", cfg.Server.Port)
 	log.Printf("Health check: http://localhost:%d/health", cfg.Server.Port)
-	log.Printf("API endpoints: http://localhost:%d/v1/greetings", cfg.Server.Port)
+	log.Printf("API Documentation: http://localhost:%d/docs", cfg.Server.Port)
+	log.Printf("API endpoints:")
+	log.Printf("  POST http://localhost:%d/v1/create", cfg.Server.Port)
+	log.Printf("  POST http://localhost:%d/v1/search", cfg.Server.Port)
 
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)

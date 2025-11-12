@@ -80,7 +80,7 @@ spec:
   - hosts:
     - roussev.com
     - www.roussev.com
-    secretName: website-app-tls
+    secretName: roussev-com-tls
   rules:
   - host: roussev.com
     http:

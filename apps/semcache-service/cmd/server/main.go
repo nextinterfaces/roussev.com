@@ -80,7 +80,6 @@ func run() error {
 	e.Use(middleware.CORS())
 
 	// Routes
-	e.GET("/health", h.Health)
 	e.GET("/v1/health", h.Health)
 
 	// API Documentation routes
@@ -101,7 +100,7 @@ func run() error {
 	}()
 
 	log.Printf("Server started successfully on port %d", cfg.Server.Port)
-	log.Printf("Health check: http://localhost:%d/health", cfg.Server.Port)
+	log.Printf("Health check: http://localhost:%d/v1/health", cfg.Server.Port)
 	log.Printf("API Documentation: http://localhost:%d/docs", cfg.Server.Port)
 	log.Printf("API endpoints:")
 	log.Printf("  POST http://localhost:%d/v1/create", cfg.Server.Port)
@@ -166,4 +165,3 @@ func initTracer(cfg *config.Config) (func(), error) {
 		}
 	}, nil
 }
-

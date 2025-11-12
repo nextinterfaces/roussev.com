@@ -452,17 +452,17 @@ tasks:
 
   # Health check tasks
   health:items-service:
-    desc: Check health of items-service (local)
+    desc: Check health of items-service
     cmds:
       - curl -s https://app.roussev.com/items/v1/health | jq
 
   health:website-app:
-    desc: Check health of website-app (local)
+    desc: Check health of website-app
     cmds:
       - curl -s https://roussev.com/health | jq
 
   health:semcache-service:
-    desc: Check health of semcache-service (local)
+    desc: Check health of semcache-service
     cmds:
       - curl -s https://app.roussev.com/semcache/v1/health | jq
 

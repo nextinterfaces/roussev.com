@@ -65,14 +65,14 @@ spec:
             cpu: "500m"
         livenessProbe:
           httpGet:
-            path: /health
+            path: /v1/health
             port: 8080
           initialDelaySeconds: 10
           periodSeconds: 10
           timeoutSeconds: 5
         readinessProbe:
           httpGet:
-            path: /health
+            path: /v1/health
             port: 8080
           initialDelaySeconds: 5
           periodSeconds: 5
@@ -94,4 +94,32 @@ spec:
     name: http
   selector:
     app: semcache-service
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: semcache-service
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - app.roussev.com
+    secretName: items-service-tls
+  rules:
+  - host: app.roussev.com
+    http:
+      paths:
+      - path: /semcache(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: semcache-service
+            port:
+              number: 80
 

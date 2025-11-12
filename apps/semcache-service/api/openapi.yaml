@@ -1,0 +1,333 @@
+openapi: 3.0.3
+info:
+  title: Semcache Service API
+  description: |
+    Semantic cache service for storing and searching key-value pairs with metadata and TTL support.
+    
+    ## Features
+    - Store key-value pairs with optional metadata
+    - TTL (Time To Live) support for automatic expiration
+    - Flexible search by key or metadata
+    - Unique key constraint
+    - Automatic expiration filtering
+  version: 1.0.0
+  contact:
+    name: API Support
+    url: https://github.com/nextinterfaces/semcache-service
+
+servers:
+  - url: http://localhost:8083
+    description: Local development (Tilt)
+  - url: http://localhost:8090
+    description: Local development (Air hot reload)
+  - url: https://app.roussev.com/semcache
+    description: Production
+
+tags:
+  - name: cache
+    description: Cache operations
+  - name: health
+    description: Health check endpoints
+
+paths:
+  /health:
+    get:
+      tags:
+        - health
+      summary: Health check
+      description: Returns the health status of the service and database connectivity
+      operationId: getHealth
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+              example:
+                status: ok
+                timestamp: "2024-01-15T10:30:00Z"
+                commit_sha: "abc123"
+                database: healthy
+
+  /v1/health:
+    get:
+      tags:
+        - health
+      summary: Health check (v1)
+      description: Returns the health status of the service and database connectivity
+      operationId: getHealthV1
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /v1/create:
+    post:
+      tags:
+        - cache
+      summary: Create cache entry
+      description: |
+        Creates a new cache entry with a unique key. If a key already exists, the request will fail.
+        
+        **TTL Support**: Optionally specify a TTL (time to live) in seconds. After the TTL expires,
+        the entry will be automatically filtered out from search results.
+      operationId: createCacheEntry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateRequest'
+            examples:
+              simple:
+                summary: Simple cache entry
+                value:
+                  key: "user:123"
+                  value: "John Doe"
+              with_metadata:
+                summary: With metadata
+                value:
+                  key: "user:456"
+                  value: '{"name": "Jane Smith", "email": "jane@example.com"}'
+                  metadata: "user profile"
+              with_ttl:
+                summary: With TTL (1 hour)
+                value:
+                  key: "session:abc"
+                  value: "session_data_here"
+                  metadata: "user session"
+                  ttl: 3600
+      responses:
+        '201':
+          description: Cache entry created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CacheEntry'
+              example:
+                id: 1
+                key: "user:123"
+                value: "John Doe"
+                metadata: "user profile"
+                created_at: "2024-01-15T10:30:00Z"
+                expires_at: "2024-01-15T11:30:00Z"
+        '400':
+          description: Invalid request body or missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Key is required"
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Failed to create cache entry"
+
+  /v1/search:
+    post:
+      tags:
+        - cache
+      summary: Search cache entries
+      description: |
+        Search for cache entries by key or metadata. Supports partial matching (case-insensitive).
+        
+        **Automatic Expiration**: Expired entries (where `expires_at` < now) are automatically
+        filtered out from results.
+        
+        **Limit**: Maximum 100 results per request (default: 100).
+      operationId: searchCacheEntries
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+            examples:
+              by_key:
+                summary: Search by key
+                value:
+                  key: "user"
+                  limit: 10
+              by_metadata:
+                summary: Search by metadata
+                value:
+                  metadata: "profile"
+                  limit: 20
+              combined:
+                summary: Search by key and metadata
+                value:
+                  key: "session"
+                  metadata: "active"
+                  limit: 50
+              all:
+                summary: Get all (up to limit)
+                value:
+                  limit: 100
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CacheEntry'
+              example:
+                - id: 1
+                  key: "user:123"
+                  value: "John Doe"
+                  metadata: "user profile"
+                  created_at: "2024-01-15T10:30:00Z"
+                  expires_at: null
+                - id: 2
+                  key: "user:456"
+                  value: '{"name": "Jane Smith"}'
+                  metadata: "user profile"
+                  created_at: "2024-01-15T10:35:00Z"
+                  expires_at: "2024-01-15T11:35:00Z"
+        '400':
+          description: Invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: "Failed to search cache entries"
+
+components:
+  schemas:
+    HealthResponse:
+      type: object
+      required:
+        - status
+        - timestamp
+        - commit_sha
+        - database
+      properties:
+        status:
+          type: string
+          description: Overall service status
+          example: ok
+        timestamp:
+          type: string
+          format: date-time
+          description: Current server timestamp in RFC3339 format
+          example: "2024-01-15T10:30:00Z"
+        commit_sha:
+          type: string
+          description: Git commit SHA of the deployed version
+          example: "abc123def456"
+        database:
+          type: string
+          description: Database connectivity status
+          enum: [healthy, unhealthy]
+          example: healthy
+
+    CreateRequest:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+          description: Unique key for the cache entry
+          maxLength: 255
+          example: "user:123"
+        value:
+          type: string
+          description: Value to store (can be any string, including JSON)
+          example: "John Doe"
+        metadata:
+          type: string
+          description: Optional metadata for categorization and search
+          example: "user profile"
+        ttl:
+          type: integer
+          format: int32
+          description: Time to live in seconds (optional). After TTL expires, entry is filtered from search results.
+          minimum: 1
+          example: 3600
+
+    SearchRequest:
+      type: object
+      properties:
+        key:
+          type: string
+          description: Search by key (partial match, case-insensitive)
+          example: "user"
+        metadata:
+          type: string
+          description: Search by metadata (partial match, case-insensitive)
+          example: "profile"
+        limit:
+          type: integer
+          format: int32
+          description: Maximum number of results to return (default 100, max 100)
+          minimum: 1
+          maximum: 100
+          default: 100
+          example: 10
+
+    CacheEntry:
+      type: object
+      required:
+        - id
+        - key
+        - value
+        - created_at
+      properties:
+        id:
+          type: integer
+          format: int32
+          description: Unique identifier for the cache entry
+          example: 1
+        key:
+          type: string
+          description: Unique key for the cache entry
+          example: "user:123"
+        value:
+          type: string
+          description: Stored value
+          example: "John Doe"
+        metadata:
+          type: string
+          description: Optional metadata
+          example: "user profile"
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the entry was created
+          example: "2024-01-15T10:30:00Z"
+        expires_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: Timestamp when the entry expires (null if no expiration)
+          example: "2024-01-15T11:30:00Z"
+
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Invalid request body"
+

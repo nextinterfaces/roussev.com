@@ -182,6 +182,37 @@ k8s_resource(
 )
 
 # ============================================================================
+# Semcache Service (Go + Echo)
+# ============================================================================
+
+# Build Docker image for semcache-service (using dev Dockerfile with hot reload)
+docker_build(
+    'semcache-service',
+    context='./apps/semcache-service',
+    dockerfile='./apps/semcache-service/Dockerfile.dev',
+    live_update=[
+        sync('./apps/semcache-service', '/app'),
+    ]
+)
+
+# Deploy semcache-service
+k8s_yaml('infra/k8s/local/semcache-service-local.yaml')
+
+# Configure semcache-service resource
+k8s_resource(
+    'semcache-service',
+    port_forwards='8083:8080',
+    labels=['apps'],
+    resource_deps=['postgres', 'jaeger', 'prometheus'],
+    links=[
+        link('http://localhost:8083/docs', 'API Documentation (Swagger UI)'),
+        link('http://localhost:8083/health', 'Health Check'),
+        link('http://localhost:8083/v1/create', 'API - Create (POST)'),
+        link('http://localhost:8083/v1/search', 'API - Search (POST)'),
+    ]
+)
+
+# ============================================================================
 # Headlamp Kubernetes Dashboard (Read-Only)
 # ============================================================================
 
@@ -217,6 +248,9 @@ Services will be available at:
      - Metrics:       http://localhost:8081/metrics
   🌐 Website App:     http://localhost:8082
      - Health:        http://localhost:8082/health
+  👋 Hello Service:   http://localhost:8083
+     - Health:        http://localhost:8083/health
+     - API:           http://localhost:8083/v1/greetings
   👁️  Headlamp:       http://localhost:8084 (Read-Only)
 
   📊 Observability:

@@ -77,6 +77,29 @@ tasks:
     cmds:
       - bun install && bun run dev
 
+  dev:hello-service:
+    desc: Run hello-service in development mode with hot reload
+    dir: apps/hello-service
+    cmds:
+      - go run ./cmd/server
+
+  dev:hello-service:postgres:
+    desc: Run hello-service locally with PostgreSQL connection (requires port-forward)
+    dir: apps/hello-service
+    cmds:
+      - |
+        echo "Make sure PostgreSQL is port-forwarded: task postgres:port-forward"
+        echo "Loading credentials from .env..."
+        set -a
+        source ../../.env
+        set +a
+        export DB_HOST=localhost
+        export DB_PORT=5432
+        export DB_USER=$POSTGRES_USER
+        export DB_PASSWORD=$POSTGRES_PASSWORD
+        export DB_NAME=$POSTGRES_DB
+        go run ./cmd/server
+
   # Docker tasks
   docker:build:items-service:
     desc: Build Docker image for items-service
@@ -88,11 +111,17 @@ tasks:
     cmds:
       - docker build -t website-app:local ./apps/website-app
 
+  docker:build:hello-service:
+    desc: Build Docker image for hello-service
+    cmds:
+      - docker build -t hello-service:local ./apps/hello-service
+
   docker:build:all:
     desc: Build Docker images for all apps
     cmds:
       - task: docker:build:items-service
       - task: docker:build:website-app
+      - task: docker:build:hello-service
 
   docker:run:items-service:
     desc: Run items-service Docker container locally
@@ -103,6 +132,11 @@ tasks:
     desc: Run website-app Docker container locally
     cmds:
       - docker run --rm -p 8080:8080 website-app:local
+
+  docker:run:hello-service:
+    desc: Run hello-service Docker container locally
+    cmds:
+      - docker run --rm -p 8080:8080 hello-service:local
 
   # Terraform tasks
   tf:init:
@@ -205,6 +239,11 @@ tasks:
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} logs -l app=website-app --tail=100 -f
 
+  k8s:logs:hello-service:
+    desc: Get logs from hello-service
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} logs -l app=hello-service --tail=100 -f
+
   k8s:describe:items-service:
     desc: Describe items-service deployment
     cmds:
@@ -214,6 +253,11 @@ tasks:
     desc: Describe website-app deployment
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} describe deployment website-app
+
+  k8s:describe:hello-service:
+    desc: Describe hello-service deployment
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} describe deployment hello-service
 
   # Deployment tasks
   deploy:items-service:
@@ -229,6 +273,14 @@ tasks:
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/apps/website-app-deployment.yaml
 
+  deploy:hello-service:
+    desc: Deploy hello-service to Kubernetes
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/apps/hello-service-deployment.yaml
+      - echo "✅ hello-service deployed"
+      - echo "Waiting for rollout to complete..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/hello-service --timeout=120s
+
   deploy:headlamp-readonly:
     desc: Deploy Headlamp Kubernetes Dashboard (Read-Only Public)
     cmds:
@@ -242,6 +294,7 @@ tasks:
     cmds:
       - task: deploy:items-service
       - task: deploy:website-app
+      - task: deploy:hello-service
       - task: deploy:headlamp-readonly
 
   deploy:items-service:with-postgres:
@@ -335,6 +388,11 @@ tasks:
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} rollout restart deployment/website-app
 
+  rollout:restart:hello-service:
+    desc: Restart hello-service deployment
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout restart deployment/hello-service
+
   rollout:status:items-service:
     desc: Check rollout status for items-service
     cmds:
@@ -344,6 +402,11 @@ tasks:
     desc: Check rollout status for website-app
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/website-app
+
+  rollout:status:hello-service:
+    desc: Check rollout status for hello-service
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/hello-service
 
   # DNS and networking tasks
   dns:clear-cache:
@@ -369,10 +432,15 @@ tasks:
     cmds:
       - curl -s https://roussev.com/health | jq
 
+  health:hello-service:
+    desc: Check health of hello-service (local)
+    cmds:
+      - curl -s https://app.roussev.com/hello/v1/health | jq
+
   clean:docker:
     desc: Clean Docker images
     cmds:
-      - docker rmi items-service:local website-app:local || true
+      - docker rmi items-service:local website-app:local hello-service:local || true
 
   # Port forwarding tasks
   port-forward:items-service:
@@ -384,6 +452,11 @@ tasks:
     desc: Port forward to website-app pod
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/website-app 8080:80
+
+  port-forward:hello-service:
+    desc: Port forward to hello-service pod
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/hello-service 8080:80
 
   # SSH tasks
   ssh:

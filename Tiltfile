@@ -182,6 +182,35 @@ k8s_resource(
 )
 
 # ============================================================================
+# Hello Service (Go + Echo)
+# ============================================================================
+
+# Build Docker image for hello-service (using dev Dockerfile with hot reload)
+docker_build(
+    'hello-service',
+    context='./apps/hello-service',
+    dockerfile='./apps/hello-service/Dockerfile.dev',
+    live_update=[
+        sync('./apps/hello-service', '/app'),
+    ]
+)
+
+# Deploy hello-service
+k8s_yaml('infra/k8s/local/hello-service-local.yaml')
+
+# Configure hello-service resource
+k8s_resource(
+    'hello-service',
+    port_forwards='8083:8080',
+    labels=['apps'],
+    resource_deps=['postgres', 'jaeger', 'prometheus'],
+    links=[
+        link('http://localhost:8083/health', 'Health Check'),
+        link('http://localhost:8083/v1/greetings', 'API - Greetings'),
+    ]
+)
+
+# ============================================================================
 # Headlamp Kubernetes Dashboard (Read-Only)
 # ============================================================================
 
@@ -217,6 +246,9 @@ Services will be available at:
      - Metrics:       http://localhost:8081/metrics
   🌐 Website App:     http://localhost:8082
      - Health:        http://localhost:8082/health
+  👋 Hello Service:   http://localhost:8083
+     - Health:        http://localhost:8083/health
+     - API:           http://localhost:8083/v1/greetings
   👁️  Headlamp:       http://localhost:8084 (Read-Only)
 
   📊 Observability:

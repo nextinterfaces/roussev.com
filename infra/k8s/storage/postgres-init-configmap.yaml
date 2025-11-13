@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init-scripts
+  namespace: default
+  labels:
+    app: postgres
+data:
+  01-init-pgvector.sql: |
+    -- Enable pgvector extension
+    CREATE EXTENSION IF NOT EXISTS vector;
+    
+    -- Verify extension is installed
+    SELECT extname, extversion FROM pg_extension WHERE extname = 'vector';
+

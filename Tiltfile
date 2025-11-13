@@ -34,6 +34,9 @@ postgres_secret = {
 
 k8s_yaml(encode_yaml(postgres_secret))
 
+# Deploy PostgreSQL init scripts ConfigMap
+k8s_yaml('infra/k8s/storage/postgres-init-configmap.yaml')
+
 # Deploy PostgreSQL using local manifests
 k8s_yaml('infra/k8s/local/postgres-local.yaml')
 

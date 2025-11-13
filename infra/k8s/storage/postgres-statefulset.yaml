@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: postgres
-        image: postgres:16-alpine
+        image: pgvector/pgvector:pg16
         ports:
         - containerPort: 5432
           name: postgres
@@ -43,6 +43,8 @@ spec:
         volumeMounts:
         - name: postgres-storage
           mountPath: /var/lib/postgresql/data
+        - name: init-scripts
+          mountPath: /docker-entrypoint-initdb.d
         resources:
           requests:
             memory: "256Mi"
@@ -70,6 +72,9 @@ spec:
       - name: postgres-storage
         persistentVolumeClaim:
           claimName: postgres-pvc
+      - name: init-scripts
+        configMap:
+          name: postgres-init-scripts
 ---
 apiVersion: v1
 kind: Service

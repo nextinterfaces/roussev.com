@@ -16,6 +16,9 @@ data:
 
     clients:
       - url: http://loki:3100/loki/api/v1/push
+        batchwait: 1s
+        batchsize: 1048576
+        timeout: 10s
 
     scrape_configs:
       - job_name: kubernetes-pods
@@ -23,37 +26,58 @@ data:
           - role: pod
         pipeline_stages:
           - cri: {}
+          - json:
+              expressions:
+                level: level
+                message: message
+                time: time
+          - labels:
+              level:
+          - output:
+              source: message
         relabel_configs:
-          - source_labels:
-              - __meta_kubernetes_pod_node_name
-            target_label: __host__
+          # Keep only pods with app or app.kubernetes.io/name label
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            action: keep
+            regex: .+
+          # Standardize labels
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: pod
+          - source_labels: [__meta_kubernetes_pod_container_name]
+            target_label: container
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
+            target_label: app
+          # Set the log path
+          - source_labels: [__meta_kubernetes_pod_uid, __meta_kubernetes_pod_container_name]
+            target_label: __path__
+            replacement: /var/log/pods/*$1/*.log
+            separator: /
+          # Add additional metadata
+          - source_labels: [__meta_kubernetes_pod_node_name]
+            target_label: node
+          - source_labels: [__meta_kubernetes_namespace]
+            target_label: namespace
           - action: labelmap
             regex: __meta_kubernetes_pod_label_(.+)
-          - action: replace
-            replacement: $1
-            separator: /
-            source_labels:
-              - __meta_kubernetes_namespace
-              - __meta_kubernetes_pod_name
+          # Set the job name to the application name if available, otherwise use pod name
+          - source_labels: [__meta_kubernetes_pod_label_app_kubernetes_io_name]
             target_label: job
-          - action: replace
-            source_labels:
-              - __meta_kubernetes_namespace
-            target_label: namespace
-          - action: replace
-            source_labels:
-              - __meta_kubernetes_pod_name
-            target_label: pod
-          - action: replace
-            source_labels:
-              - __meta_kubernetes_pod_container_name
-            target_label: container
-          - replacement: /var/log/pods/*$1/*.log
-            separator: /
-            source_labels:
-              - __meta_kubernetes_pod_uid
-              - __meta_kubernetes_pod_container_name
-            target_label: __path__
+            replacement: ${1}
+            action: replace
+          - source_labels: [__meta_kubernetes_pod_name]
+            target_label: job
+            action: replace
+            regex: (.*)
+            replacement: $1
+            target_label: job
+            action: replace
+            regex: (.*?)-[a-z0-9]+-[a-z0-9]+$
+            replacement: $1
+          # Drop __tmp labels
+          - action: labeldrop
+            regex: __tmp_.*
 
 ---
 apiVersion: apps/v1

@@ -61,6 +61,8 @@ spec:
           value: "jaeger:4318"
         - name: OTEL_SERVICE_NAME
           value: "semcache-service"
+        - name: OTEL_LOG_LEVEL
+          value: "info"  # Options: info, debug, verbose
         resources:
           requests:
             memory: "64Mi"

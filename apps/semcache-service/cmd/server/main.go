@@ -12,6 +12,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"github.com/nextinterfaces/semcache-service/internal/config"
 	"github.com/nextinterfaces/semcache-service/internal/database"
 	"github.com/nextinterfaces/semcache-service/internal/handlers"
@@ -84,6 +85,7 @@ func run() error {
 	e.HideBanner = true
 
 	// Middleware
+	e.Use(otelecho.Middleware(cfg.OTEL.ServiceName))
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())

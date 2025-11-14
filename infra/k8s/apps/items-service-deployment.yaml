@@ -49,13 +49,11 @@ spec:
               key: POSTGRES_DB
         # OpenTelemetry configuration
         - name: OTEL_ENABLED
-          value: "true"  # Enabled for production with Jaeger
+          value: "true"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://jaeger:4318"  # Jaeger service in cluster
         - name: OTEL_SERVICE_NAME
           value: "items-service"
-        - name: OTEL_SERVICE_VERSION
-          value: "1.0.0"
-        - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://jaeger:4318"  # Jaeger service in the cluster
         - name: OTEL_LOG_LEVEL
           value: "info"  # Options: info, debug, verbose
         resources:

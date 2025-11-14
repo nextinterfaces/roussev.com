@@ -595,9 +595,9 @@ tasks:
         echo "  Database: $POSTGRES_DB"
 
   postgres:port-forward:
-    desc: Port forward to PostgreSQL
+    desc: Port forward to PostgreSQL (production on port 5444, local k3d uses 5432)
     cmds:
-      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/postgres 5432:5432
+      - kubectl --kubeconfig={{.KUBECONFIG}} port-forward svc/postgres 5444:5432
 
   postgres:backup:
     desc: Backup PostgreSQL database

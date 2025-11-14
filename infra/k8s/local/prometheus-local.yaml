@@ -16,6 +16,11 @@ data:
           - targets: ['items-service:80']
         metrics_path: '/metrics'
         scrape_interval: 10s
+      - job_name: 'semcache-service'
+        static_configs:
+          - targets: ['semcache-service:80']
+        metrics_path: '/metrics'
+        scrape_interval: 10s
 
 ---
 apiVersion: apps/v1

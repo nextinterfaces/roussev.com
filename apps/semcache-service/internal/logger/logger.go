@@ -6,11 +6,11 @@ import (
 )
 
 var (
-	// Logger is the global logger instance
+	// global logger instance
 	Logger *zap.Logger
 )
 
-// InitLogger initializes the global logger
+// initializes the global logger
 func InitLogger(debug bool) {
 	var config zap.Config
 	if debug {

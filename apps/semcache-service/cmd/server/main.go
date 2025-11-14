@@ -134,7 +134,6 @@ func initTracer(cfg *config.Config) (func(), error) {
 		return nil, fmt.Errorf("failed to create exporter: %w", err)
 	}
 
-	// Create resource
 	res, err := resource.New(ctx,
 		resource.WithAttributes(
 			semconv.ServiceNameKey.String(cfg.OTEL.ServiceName),

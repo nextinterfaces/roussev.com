@@ -111,7 +111,7 @@ tasks:
         export DB_PASSWORD=$POSTGRES_PASSWORD
         export DB_NAME=$POSTGRES_DB
         export DB_SSLMODE=disable
-        export OTEL_ENABLED=false
+        export OTEL_ENABLED=true
 
         echo "🚀 Starting Air hot reload on port 8090..."
         air -c .air.toml

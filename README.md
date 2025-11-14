@@ -15,17 +15,16 @@
 
 
 ## Local Development
-This project uses [Task](https://taskfile.dev/) to common development workflows, Run `task` to see all available tasks.
+Project uses [Task](https://taskfile.dev/) to common dev workflows, Run `task` to see all available tasks.
 
 ```bash
 task local:setup
 task local:start
 
 Tilt UI:               http://localhost:10350
-
 Jaeger UI:             http://localhost:16686
-PostgreSQL:            localhost:5432
-     - Connection:          psql postgresql://{.env.POSTGRES_USER}:{.env.POSTGRES_PASSWORD}@localhost:5432/
+Postgre:               localhost:5432
+Postgre connection     psql postgresql://{.env.POSTGRES_USER}:{.env.POSTGRES_PASSWORD}@localhost:5432/
 ```
 
 ## Production Links

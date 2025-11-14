@@ -15,6 +15,7 @@ import (
 	"github.com/nextinterfaces/semcache-service/internal/config"
 	"github.com/nextinterfaces/semcache-service/internal/database"
 	"github.com/nextinterfaces/semcache-service/internal/handlers"
+	"github.com/nextinterfaces/semcache-service/internal/logger"
 	"github.com/nextinterfaces/semcache-service/internal/models"
 	"github.com/nextinterfaces/semcache-service/internal/util"
 	"go.opentelemetry.io/otel"
@@ -33,19 +34,27 @@ func main() {
 func run() error {
 	cfg, err := config.Load()
 	cfgJSON, _ := json.MarshalIndent(util.RedactedConfig(cfg), "", "  ")
-	log.Println("Loaded configuration:\n" + string(cfgJSON))
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
+
+	// Initialize logger
+	logger.InitLogger(cfg.Debug)
+	defer logger.Sync()
+
+	logger.Logger.Info("Starting semcache-service")
+	logger.Logger.Debug("Debug mode enabled")
+	logger.Logger.Info("Loaded configuration:\n" + string(cfgJSON))
+	//logger.Logger.Info("Server port", zap.Int("port", cfg.Server.Port))
 
 	// Initialize OpenTelemetry
 	if cfg.OTEL.Enabled {
 		shutdown, err := initTracer(cfg)
 		if err != nil {
-			log.Printf("Warning: Failed to initialize tracer: %v", err)
+			logger.Logger.Warn(fmt.Sprintf("Failed to initialize tracer: %v", err))
 		} else {
 			defer shutdown()
-			log.Printf("OpenTelemetry tracing enabled: %s", cfg.OTEL.Endpoint)
+			logger.Logger.Info(fmt.Sprintf("OpenTelemetry tracing enabled: %s", cfg.OTEL.Endpoint))
 		}
 	}
 
@@ -92,22 +101,22 @@ func run() error {
 	go func() {
 		addr := fmt.Sprintf(":%d", port)
 		if err := e.Start(addr); err != nil {
-			log.Printf("Server error: %v", err)
+			logger.Logger.Error(fmt.Sprintf("Server error: %v", err))
 		}
 	}()
 
-	log.Printf("Server started, endpoints:")
-	log.Printf("  http://localhost:%d/v1/health", port)
-	log.Printf("  http://localhost:%d/docs", port)
-	log.Printf("  POST http://localhost:%d/v1/create", port)
-	log.Printf("  POST http://localhost:%d/v1/search", port)
+	logger.Logger.Info(fmt.Sprintf("Server started, endpoints:"))
+	logger.Logger.Info(fmt.Sprintf("  http://localhost:%d/v1/health", port))
+	logger.Logger.Info(fmt.Sprintf("  http://localhost:%d/docs", port))
+	logger.Logger.Info(fmt.Sprintf("  POST http://localhost:%d/v1/create", port))
+	logger.Logger.Info(fmt.Sprintf("  POST http://localhost:%d/v1/search", port))
 
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 	<-quit
 
-	log.Println("Shutting down server...")
+	logger.Logger.Info(fmt.Sprintf("Shutting down server..."))
 
 	// Graceful shutdown with timeout
 	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
@@ -117,7 +126,7 @@ func run() error {
 		return fmt.Errorf("server shutdown error: %w", err)
 	}
 
-	log.Println("Server stopped")
+	logger.Logger.Info(fmt.Sprintf("Server stopped"))
 	return nil
 }
 
@@ -156,7 +165,7 @@ func initTracer(cfg *config.Config) (func(), error) {
 		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
 		if err := tp.Shutdown(ctx); err != nil {
-			log.Printf("Error shutting down tracer provider: %v", err)
+			logger.Logger.Info(fmt.Sprintf("Error shutting down tracer provider: %v", err))
 		}
 	}, nil
 }

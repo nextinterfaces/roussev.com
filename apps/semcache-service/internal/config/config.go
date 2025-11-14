@@ -11,6 +11,7 @@ type Config struct {
 	Server   ServerConfig
 	Database DatabaseConfig
 	OTEL     OTELConfig
+	Debug    bool
 }
 
 // ServerConfig holds server configuration
@@ -71,6 +72,7 @@ func Load() (*Config, error) {
 			Endpoint:    getEnv("OTEL_EXPORTER_OTLP_ENDPOINT", "http://localhost:4318"),
 			ServiceName: getEnv("OTEL_SERVICE_NAME", "semcache-service"),
 		},
+		Debug: true,
 	}, nil
 }
 
@@ -115,4 +117,3 @@ func (c *DatabaseConfig) ConnectionString() string {
 		c.Host, c.Port, c.User, c.Password, c.Database, c.SSLMode,
 	)
 }
-

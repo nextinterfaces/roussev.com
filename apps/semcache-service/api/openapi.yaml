@@ -1,19 +1,11 @@
 openapi: 3.0.3
 info:
   title: Semcache Service API
-  description: |
-    Semantic cache service for storing and searching key-value pairs with metadata and TTL support.
     
-    ## Features
-    - Store key-value pairs with optional metadata
-    - TTL (Time To Live) support for automatic expiration
-    - Flexible search by key or metadata
-    - Unique key constraint
-    - Automatic expiration filtering
-  version: 1.0.0
+  version: 0.1.0
   contact:
     name: API Support
-    url: https://github.com/nextinterfaces/semcache-service
+    url: https://github.com/nextinterfaces/roussev.com
 
 servers:
   - url: https://app.roussev.com/semcache

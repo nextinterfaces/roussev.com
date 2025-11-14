@@ -4,11 +4,11 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"log"
 	"time"
 
 	_ "github.com/lib/pq"
 	"github.com/nextinterfaces/semcache-service/internal/config"
+	"github.com/nextinterfaces/semcache-service/internal/logger"
 )
 
 // DB wraps the database connection
@@ -19,7 +19,7 @@ type DB struct {
 // New creates a new database connection
 func New(cfg *config.DatabaseConfig) (*DB, error) {
 	connStr := cfg.ConnectionString()
-	
+
 	db, err := sql.Open("postgres", connStr)
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
@@ -38,7 +38,7 @@ func New(cfg *config.DatabaseConfig) (*DB, error) {
 		return nil, fmt.Errorf("failed to ping database: %w", err)
 	}
 
-	log.Printf("Connected to database: %s:%d/%s", cfg.Host, cfg.Port, cfg.Database)
+	logger.Logger.Info(fmt.Sprintf("Connected to database: %s:%d/%s", cfg.Host, cfg.Port, cfg.Database))
 
 	return &DB{db}, nil
 }
@@ -66,7 +66,7 @@ func (db *DB) InitSchema(ctx context.Context) error {
 		return fmt.Errorf("failed to create schema: %w", err)
 	}
 
-	log.Println("Database schema initialized")
+	logger.Logger.Info(fmt.Sprintf("Database schema initialized"))
 	return nil
 }
 
@@ -79,4 +79,3 @@ func (db *DB) HealthCheck(ctx context.Context) error {
 func (db *DB) Close() error {
 	return db.DB.Close()
 }
-

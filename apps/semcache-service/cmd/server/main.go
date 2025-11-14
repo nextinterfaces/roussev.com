@@ -14,6 +14,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho"
 	"github.com/nextinterfaces/semcache-service/internal/config"
+	smmetrics "github.com/nextinterfaces/semcache-service/internal/metrics"
 	"github.com/nextinterfaces/semcache-service/internal/database"
 	"github.com/nextinterfaces/semcache-service/internal/handlers"
 	"github.com/nextinterfaces/semcache-service/internal/logger"
@@ -59,6 +60,12 @@ func run() error {
 		}
 	}
 
+	// Initialize Prometheus metrics and middleware
+	metricsHandler, err := smmetrics.Init(cfg.OTEL.ServiceName, cfg.Server.CommitSHA)
+	if err != nil {
+		logger.Logger.Warn(fmt.Sprintf("Failed to initialize Prometheus metrics: %v", err))
+	}
+
 	// Connect to database
 	db, err := database.New(&cfg.Database)
 	if err != nil {
@@ -89,8 +96,15 @@ func run() error {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
+	// record http_server_* metrics compatible with dashboards
+	e.Use(smmetrics.Middleware())
 
 	e.GET("/v1/health", h.Health)
+
+	// Prometheus metrics endpoint
+	if metricsHandler != nil {
+		e.GET("/metrics", echo.WrapHandler(metricsHandler))
+	}
 
 	e.GET("/docs", h.ServeSwaggerUI)
 	e.GET("/api/openapi.yaml", h.ServeOpenAPISpec)

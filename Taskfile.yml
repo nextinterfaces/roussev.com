@@ -70,6 +70,11 @@ tasks:
     cmds:
       - bun install && bun run dev
 
+  dev:observability-app:
+    dir: apps/observability-app
+    cmds:
+      - http-server
+
   dev:semcache-service:
     desc: Run semcache-service locally with Air + K8s PostgreSQL (auto port-forwards)
     dir: apps/semcache-service

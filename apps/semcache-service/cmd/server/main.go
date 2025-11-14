@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"log"
 	"os"
@@ -15,6 +16,7 @@ import (
 	"github.com/nextinterfaces/semcache-service/internal/database"
 	"github.com/nextinterfaces/semcache-service/internal/handlers"
 	"github.com/nextinterfaces/semcache-service/internal/models"
+	"github.com/nextinterfaces/semcache-service/internal/util"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/sdk/resource"
@@ -29,16 +31,14 @@ func main() {
 }
 
 func run() error {
-	// Load configuration
 	cfg, err := config.Load()
+	cfgJSON, _ := json.MarshalIndent(util.RedactedConfig(cfg), "", "  ")
+	log.Println("Loaded configuration:\n" + string(cfgJSON))
 	if err != nil {
 		return fmt.Errorf("failed to load config: %w", err)
 	}
 
-	log.Printf("Starting semcache-service on port %d", cfg.Server.Port)
-	log.Printf("Commit SHA: %s", cfg.Server.CommitSHA)
-
-	// Initialize OpenTelemetry if enabled
+	// Initialize OpenTelemetry
 	if cfg.OTEL.Enabled {
 		shutdown, err := initTracer(cfg)
 		if err != nil {
@@ -79,32 +79,28 @@ func run() error {
 	e.Use(middleware.Recover())
 	e.Use(middleware.CORS())
 
-	// Routes
 	e.GET("/v1/health", h.Health)
 
-	// API Documentation routes
 	e.GET("/docs", h.ServeSwaggerUI)
 	e.GET("/api/openapi.yaml", h.ServeOpenAPISpec)
 
-	// API routes
 	api := e.Group("/v1")
 	api.POST("/create", h.Create)
 	api.POST("/search", h.Search)
 
-	// Start server in a goroutine
+	port := cfg.Server.Port
 	go func() {
-		addr := fmt.Sprintf(":%d", cfg.Server.Port)
+		addr := fmt.Sprintf(":%d", port)
 		if err := e.Start(addr); err != nil {
 			log.Printf("Server error: %v", err)
 		}
 	}()
 
-	log.Printf("Server started successfully on port %d", cfg.Server.Port)
-	log.Printf("Health check: http://localhost:%d/v1/health", cfg.Server.Port)
-	log.Printf("API Documentation: http://localhost:%d/docs", cfg.Server.Port)
-	log.Printf("API endpoints:")
-	log.Printf("  POST http://localhost:%d/v1/create", cfg.Server.Port)
-	log.Printf("  POST http://localhost:%d/v1/search", cfg.Server.Port)
+	log.Printf("Server started, endpoints:")
+	log.Printf("  http://localhost:%d/v1/health", port)
+	log.Printf("  http://localhost:%d/docs", port)
+	log.Printf("  POST http://localhost:%d/v1/create", port)
+	log.Printf("  POST http://localhost:%d/v1/search", port)
 
 	// Wait for interrupt signal to gracefully shutdown the server
 	quit := make(chan os.Signal, 1)

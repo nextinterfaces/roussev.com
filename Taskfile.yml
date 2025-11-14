@@ -75,9 +75,7 @@ tasks:
     dir: apps/semcache-service
     cmds:
       - |
-        echo "🔥 Starting semcache-service with Air hot reload + K8s PostgreSQL..."
-        echo "📝 Edit any .go file and see changes in ~1 second!"
-        echo ""
+        echo "Starting semcache-service with Air hot reload + K8s PostgreSQL..."
 
         # Check if port-forward is already running
         if lsof -Pi :5432 -sTCP:LISTEN -t >/dev/null 2>&1; then
@@ -116,9 +114,6 @@ tasks:
         export OTEL_ENABLED=false
 
         echo "🚀 Starting Air hot reload on port 8090..."
-        echo "   http://localhost:8090/health"
-        echo "   http://localhost:8090/v1/greetings"
-        echo ""
         air -c .air.toml
 
 #  dev:stop-port-forwards:

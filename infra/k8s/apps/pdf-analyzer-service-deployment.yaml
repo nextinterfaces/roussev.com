@@ -64,3 +64,30 @@ spec:
     name: http
   selector:
     app: pdf-analyzer-service
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pdf-analyzer-service
+  namespace: default
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+spec:
+  ingressClassName: nginx
+  tls:
+  - hosts:
+    - app.roussev.com
+    secretName: app-roussev-com-tls
+  rules:
+  - host: app.roussev.com
+    http:
+      paths:
+      - path: /pdf-analyzer(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: pdf-analyzer-service
+            port:
+              number: 80

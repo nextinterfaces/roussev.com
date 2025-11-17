@@ -96,6 +96,15 @@ body {
     text-decoration: underline;
 }
 
+.icon-blue {
+    filter: brightness(0) saturate(100%) invert(27%) sepia(94%) saturate(2158%) hue-rotate(195deg) brightness(94%) contrast(95%);
+    transition: filter 0.15s ease;
+}
+
+a:hover .icon-blue {
+    filter: brightness(0) saturate(100%) invert(40%) sepia(89%) saturate(1465%) hue-rotate(190deg) brightness(98%) contrast(98%);
+}
+
 /* Pinned Section */
 .pinned-section {
     margin-top: 32px;

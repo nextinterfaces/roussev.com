@@ -121,13 +121,11 @@ tasks:
         echo "🚀 Starting Air hot reload on port 8090..."
         air -c .air.toml
 
-#  dev:stop-port-forwards:
-#    desc: Stop all kubectl port-forward processes
-#    cmds:
-#      - |
-#        echo "🛑 Stopping all kubectl port-forward processes..."
-#        pkill -f "kubectl port-forward" || echo "No port-forwards running"
-#        echo "✅ Done"
+  dev:pdf-analyzer-service:
+    desc: Run pdf-analyzer-service in development mode with hot reload
+    dir: apps/pdf-analyzer-service
+    cmds:
+      - pnpm install && PORT=8091 pnpm dev
 
   # Docker tasks
   docker:build:items-service:
@@ -145,12 +143,18 @@ tasks:
     cmds:
       - docker build -t semcache-service:local ./apps/semcache-service
 
+  docker:build:pdf-analyzer-service:
+    desc: Build Docker image for pdf-analyzer-service
+    cmds:
+      - docker build -t pdf-analyzer-service:local ./apps/pdf-analyzer-service
+
   docker:build:all:
     desc: Build Docker images for all apps
     cmds:
       - task: docker:build:items-service
       - task: docker:build:website-app
       - task: docker:build:semcache-service
+      - task: docker:build:pdf-analyzer-service
 
   docker:run:items-service:
     desc: Run items-service Docker container locally
@@ -166,6 +170,11 @@ tasks:
     desc: Run semcache-service Docker container locally
     cmds:
       - docker run --rm -p 8080:8080 semcache-service:local
+
+  docker:run:pdf-analyzer-service:
+    desc: Run pdf-analyzer-service Docker container locally
+    cmds:
+      - docker run --rm -p 8080:8080 pdf-analyzer-service:local
 
   # Terraform tasks
   tf:init:
@@ -273,6 +282,11 @@ tasks:
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} logs -l app=semcache-service --tail=100 -f
 
+  k8s:logs:pdf-analyzer-service:
+    desc: Get logs from pdf-analyzer-service
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} logs -l app=pdf-analyzer-service --tail=100 -f
+
   k8s:describe:items-service:
     desc: Describe items-service deployment
     cmds:
@@ -287,6 +301,11 @@ tasks:
     desc: Describe semcache-service deployment
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} describe deployment semcache-service
+
+  k8s:describe:pdf-analyzer-service:
+    desc: Describe pdf-analyzer-service deployment
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} describe deployment pdf-analyzer-service
 
   # Deployment tasks
   deploy:items-service:
@@ -310,6 +329,14 @@ tasks:
       - echo "Waiting for rollout to complete..."
       - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/semcache-service --timeout=120s
 
+  deploy:pdf-analyzer-service:
+    desc: Deploy pdf-analyzer-service to Kubernetes
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} apply -f {{.K8S_DIR}}/apps/pdf-analyzer-service-deployment.yaml
+      - echo "✅ pdf-analyzer-service deployed"
+      - echo "Waiting for rollout to complete..."
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/pdf-analyzer-service --timeout=120s
+
   deploy:headlamp-readonly:
     desc: Deploy Headlamp Kubernetes Dashboard (Read-Only Public)
     cmds:
@@ -324,6 +351,7 @@ tasks:
       - task: deploy:items-service
       - task: deploy:website-app
       - task: deploy:semcache-service
+      - task: deploy:pdf-analyzer-service
       - task: deploy:headlamp-readonly
 
   deploy:items-service:with-postgres:
@@ -422,6 +450,11 @@ tasks:
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} rollout restart deployment/semcache-service
 
+  rollout:restart:pdf-analyzer-service:
+    desc: Restart pdf-analyzer-service deployment
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout restart deployment/pdf-analyzer-service
+
   rollout:status:items-service:
     desc: Check rollout status for items-service
     cmds:
@@ -436,6 +469,11 @@ tasks:
     desc: Check rollout status for semcache-service
     cmds:
       - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/semcache-service
+
+  rollout:status:pdf-analyzer-service:
+    desc: Check rollout status for pdf-analyzer-service
+    cmds:
+      - kubectl --kubeconfig={{.KUBECONFIG}} rollout status deployment/pdf-analyzer-service
 
   # DNS and networking tasks
   dns:clear-cache:
@@ -466,10 +504,15 @@ tasks:
     cmds:
       - curl -s https://app.roussev.com/semcache/v1/health | jq
 
+  health:pdf-analyzer-service:
+    desc: Check health of pdf-analyzer-service
+    cmds:
+      - curl -s https://app.roussev.com/pdf-analyzer/v1/health | jq
+
   clean:docker:
     desc: Clean Docker images
     cmds:
-      - docker rmi items-service:local website-app:local semcache-service:local || true
+      - docker rmi items-service:local website-app:local semcache-service:local pdf-analyzer-service:local || true
 
   # Port forwarding tasks
 #  port-forward:items-service:

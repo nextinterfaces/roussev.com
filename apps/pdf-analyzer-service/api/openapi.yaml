@@ -1,0 +1,27 @@
+openapi: 3.0.3
+info:
+  title: PDF Analyzer Service API
+  version: 0.1.0
+  description: Simple service with health and docs for PDF Analyzer
+servers:
+  - url: /
+paths:
+  /v1/health:
+    get:
+      summary: Health check
+      operationId: healthCheck
+      tags: [system]
+      responses:
+        '200':
+          description: Service is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  commit:
+                    type: string
+                    example: local-dev

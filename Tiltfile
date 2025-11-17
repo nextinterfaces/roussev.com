@@ -216,6 +216,37 @@ k8s_resource(
 )
 
 # ============================================================================
+# PDF Analyzer Service (Node.js + Express + TypeScript)
+# ============================================================================
+
+# Build Docker image for pdf-analyzer-service (using dev Dockerfile with hot reload)
+docker_build(
+    'pdf-analyzer-service',
+    context='./apps/pdf-analyzer-service',
+    dockerfile='./apps/pdf-analyzer-service/Dockerfile.dev',
+    live_update=[
+        sync('./apps/pdf-analyzer-service/src', '/app/src'),
+        sync('./apps/pdf-analyzer-service/package.json', '/app/package.json'),
+        run('cd /app && pnpm install', trigger=['./apps/pdf-analyzer-service/package.json']),
+    ]
+)
+
+# Deploy pdf-analyzer-service
+k8s_yaml('infra/k8s/local/pdf-analyzer-service-local.yaml')
+
+# Configure pdf-analyzer-service resource
+k8s_resource(
+    'pdf-analyzer-service',
+    port_forwards='8085:8080',
+    labels=['apps'],
+    resource_deps=['jaeger', 'prometheus'],
+    links=[
+        link('http://localhost:8085/v1/health', 'Health Check'),
+        link('http://localhost:8085/docs', 'API Docs (Swagger UI)'),
+    ]
+)
+
+# ============================================================================
 # Headlamp Kubernetes Dashboard (Read-Only)
 # ============================================================================
 

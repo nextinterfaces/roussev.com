@@ -1,0 +1,19 @@
+# Development Dockerfile with hot reload using tsx
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Enable pnpm
+RUN corepack enable && corepack prepare pnpm@9.12.3 --activate
+
+# Install dependencies first for cache
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install
+
+# Copy source
+COPY . .
+
+EXPOSE 8080
+ENV PORT=8080
+
+CMD ["pnpm", "dev"]

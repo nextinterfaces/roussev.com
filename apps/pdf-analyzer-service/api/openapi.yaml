@@ -3,7 +3,7 @@ info:
   title: PDF Analyzer Service API
   version: 0.1.0
   description: Simple service with health and docs for PDF Analyzer
-servers: [{ url: "/pdf-analyzer" }]
+servers: [{ url: "/pdf-analyzer" }, { url: "/" }]
 paths:
   /v1/health:
     get:

@@ -12,16 +12,14 @@ class JobService {
     ensureDir(paths.uploadsDir);
   }
 
-  createJobFromUpload(tempPath: string, originalName: string): string {
-    const id = uuidv4().replace(/-/g, '');
-    const ext = path.extname(originalName) || '.pdf';
-    const finalPath = path.join(paths.uploadsDir, `${id}${ext}`);
-    fs.renameSync(tempPath, finalPath);
+  createJobFromUpload(filePath: string, originalName: string): string {
+    // Extract ID from the filename (multer has already named it with UUID + extension)
+    const id = path.basename(filePath, path.extname(filePath));
     const now = new Date().toISOString();
     const job: Job = {
       id,
       status: 'queued',
-      filePath: finalPath,
+      filePath,
       originalName,
       createdAt: now,
       updatedAt: now,

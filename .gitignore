@@ -45,3 +45,5 @@ setup.sh
 
 node_modules
 sample-pay-statement.pdf
+apps/pdf-analyzer-service/dist
+

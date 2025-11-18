@@ -180,3 +180,43 @@ paths:
                 properties:
                   error:
                     type: string
+  /v1/files:
+    get:
+      summary: List uploaded files
+      operationId: listFiles
+      tags: [files]
+      responses:
+        '200':
+          description: List of files in storage
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  files:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                        size:
+                          type: integer
+                          format: int64
+                        mtime:
+                          type: string
+                          format: date-time
+    delete:
+      summary: Delete all uploaded files
+      operationId: deleteAllFiles
+      tags: [files]
+      responses:
+        '200':
+          description: Deletion summary
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  deleted:
+                    type: integer

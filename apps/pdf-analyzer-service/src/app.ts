@@ -10,11 +10,8 @@ const app = express();
 app.use(express.json());
 
 const openapiDoc = loadOpenApi();
-app.get('/docs', (_req, res) => {
-  res.send(swaggerUi.generateHTML(openapiDoc));
-});
-app.use('/docs', swaggerUi.serveFiles(openapiDoc));
-app.get('/', (_req, res) => res.redirect('/docs'));
+app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiDoc));
+app.get('/', (_req, res) => res.redirect('docs'));
 
 registerRoutes(app);
 

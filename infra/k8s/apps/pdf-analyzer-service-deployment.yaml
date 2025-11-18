@@ -82,6 +82,7 @@ metadata:
   annotations:
     nginx.ingress.kubernetes.io/rewrite-target: /$2
     nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
     cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   ingressClassName: nginx
@@ -94,6 +95,13 @@ spec:
     http:
       paths:
       - path: /pdf-analyzer(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: pdf-analyzer-service
+            port:
+              number: 80
+      - path: /docs(/|$)(.*)
         pathType: ImplementationSpecific
         backend:
           service:

@@ -1,13 +1,19 @@
 import { Request, Response } from 'express';
 import { jobService } from '../services/job.service.js';
 
-export const upload = (req: Request, res: Response) => {
+export const upload = async (req: Request, res: Response) => {
   if (!req.file) {
     res.status(400).json({ error: 'file is required' });
     return;
   }
-  const id = jobService.createJobFromUpload(req.file.path, req.file.originalname);
-  res.status(201).json({ jobId: id });
+  
+  try {
+    const id = await jobService.createJobFromUpload(req.file.path, req.file.originalname);
+    res.status(201).json({ jobId: id });
+  } catch (error) {
+    console.error('Error creating job:', error);
+    res.status(500).json({ error: 'Failed to create job' });
+  }
 };
 
 export const listJobs = (_req: Request, res: Response) => {

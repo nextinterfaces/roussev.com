@@ -10,13 +10,6 @@ const app = express();
 app.use(express.json());
 
 const openapiDoc = loadOpenApi();
-// // Normalize '/docs' to '/docs/' to prevent absolute redirect that would drop ingress prefix
-// app.use((req, _res, next) => {
-//   if (req.path === '/docs') {
-//     req.url = '/docs/';
-//   }
-//   next();
-// });
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(openapiDoc));
 
 registerRoutes(app);

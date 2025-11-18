@@ -44,3 +44,5 @@ setup.sh
 .ignore
 
 node_modules
+apps/pdf-analyzer-service/data
+sample-pay-statement.pdf
